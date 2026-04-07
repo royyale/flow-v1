@@ -23,7 +23,11 @@ export default function AppSidebar() {
     <aside className={`fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col z-50 transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}>
       <div className="p-4 flex items-center gap-3 border-b border-sidebar-border">
         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
-          <span className="text-primary-foreground font-bold text-sm">C</span>
+          <div className="relative w-5 h-5">
+            <div className="absolute inset-0 rounded-full border-[2px] border-primary-foreground border-r-transparent border-b-transparent rotate-45" />
+            <div className="absolute inset-[17.5%] rounded-full border-[2px] border-primary-foreground border-l-transparent border-t-transparent rotate-45" />
+            <div className="absolute w-[22%] h-[22%] bg-primary-foreground rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          </div>
         </div>
         {!collapsed && <span className="text-foreground font-semibold text-lg tracking-tight">Clairo</span>}
       </div>
