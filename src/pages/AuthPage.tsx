@@ -34,9 +34,16 @@ export default function AuthPage() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto mb-4">
-            <span className="text-primary-foreground font-bold text-lg">C</span>
-          </div>
+        <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto mb-4 relative overflow-hidden">
+  <div className="relative w-7 h-7">
+    {/* Outer ring - C shape */}
+    <div className="absolute inset-0 rounded-full border-[3px] border-primary-foreground border-r-transparent border-b-transparent rotate-45" />
+    {/* Inner ring - reversed C */}
+    <div className="absolute inset-[17.5%] rounded-full border-[3px] border-primary-foreground border-l-transparent border-t-transparent rotate-45" />
+    {/* Center focus point */}
+    <div className="absolute w-[22%] h-[22%] bg-primary-foreground rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+  </div>
+</div>
           <h1 className="text-2xl font-bold text-foreground">Welcome to Clairo</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {isSignUp ? "Create your account" : "Sign in to continue"}
