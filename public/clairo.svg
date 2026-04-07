@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <rect width="48" height="48" rx="12" fill="#14b8a6"/>
+  
+  <g transform="translate(24 24) rotate(45)">
+    ircle cx="0" cy="0" r="14" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="43.98 43.98" stroke-dashoffset="21.99"/>
+    ircle cx="0" cy="0" r="8.5" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="26.7 26.7" stroke-dashoffset="13.35"/>
+    ircle cx="0" cy="0" r="3" fill="#ffffff"/>
+  </g>
+</svg>
