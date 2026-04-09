@@ -22,7 +22,7 @@ function formatRelativeDate(dateStr: string | null) {
 
 export default function TodayView() {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const { data: clients = [] } = useClients();
   const { data: tasks = [] } = useTasks();
   const { data: reminders = [] } = useReminders();
@@ -49,7 +49,7 @@ export default function TodayView() {
         </div>
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-semibold">
-            {profile?.avatar_initials || "U"}
+          {user?.email?.[0]?.toUpperCase() || "U"}
           </div>
         </div>
       </div>

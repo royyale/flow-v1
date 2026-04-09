@@ -17,7 +17,7 @@ export default function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { signOut, profile } = useAuth();
+  const { signOut, profile, user } = useAuth();
 
   return (
     <aside className={`fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col z-50 transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}>
@@ -57,7 +57,7 @@ export default function AppSidebar() {
       <div className="px-3 pb-2">
         <div className="flex items-center gap-2 px-3 py-2">
           <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-semibold shrink-0">
-            {profile?.avatar_initials || "U"}
+          {user?.email?.[0]?.toUpperCase() || "U"}
           </div>
           {!collapsed && <span className="text-xs text-sidebar-foreground truncate flex-1">{profile?.full_name || "User"}</span>}
           {!collapsed && (
