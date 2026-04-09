@@ -1,5 +1,5 @@
 import { format, isToday, isTomorrow, isPast, differenceInDays } from "date-fns";
-import { Calendar, AlertTriangle, Clock, CheckCircle2, ArrowRight, Bell } from "lucide-react";
+import { Calendar, AlertTriangle, Clock, CheckCircle2, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useClients } from "@/hooks/useClients";
 import { useTasks } from "@/hooks/useTasks";
@@ -48,14 +48,6 @@ export default function TodayView() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="relative p-2 rounded-lg bg-card/60 border border-border/30 text-muted-foreground hover:text-foreground transition-colors">
-            <Bell className="w-5 h-5" />
-            {todayReminders.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
-                {todayReminders.length}
-              </span>
-            )}
-          </button>
           <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-semibold">
             {profile?.avatar_initials || "U"}
           </div>

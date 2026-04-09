@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  LayoutDashboard, Users, CheckSquare, Clock, Bot, Search,
+  LayoutDashboard, Users, CheckSquare, Clock, Bot,
   ChevronLeft, ChevronRight, LogOut,
 } from "lucide-react";
 
@@ -30,13 +30,6 @@ export default function AppSidebar() {
           </div>
         </div>
         {!collapsed && <span className="text-foreground font-semibold text-lg tracking-tight">Clairo</span>}
-      </div>
-
-      <div className="px-3 py-3">
-        <button className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-sidebar-accent text-muted-foreground text-sm hover:bg-muted transition-colors">
-          <Search className="w-4 h-4 shrink-0" />
-          {!collapsed && <span>Search...</span>}
-        </button>
       </div>
 
       <nav className="flex-1 px-3 space-y-1">
