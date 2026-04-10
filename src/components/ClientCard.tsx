@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, ArrowRight } from "lucide-react";
+import { AlertTriangle, ArrowRight, Trash2 } from "lucide-react";
 import type { DbClient } from "@/hooks/useClients";
+import { useClients } from "@/hooks/useClients";
 import HealthScore from "./HealthScore";
-
 export default function ClientCard({ client }: { client: DbClient }) {
   const navigate = useNavigate();
+  const { deleteClient } = useClients();
 
   return (
     <button onClick={() => navigate(`/clients/${client.id}`)} className="glass-card-hover p-4 text-left w-full group">
@@ -32,7 +33,13 @@ export default function ClientCard({ client }: { client: DbClient }) {
             </span>
           )}
         </div>
-        <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="flex items-center gap-2">
+          <button onClick={(e) => { e.stopPropagation(); if (confirm("Delete this client?")) deleteClient(client.id); }}
+            className="p-1 rounded text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100">
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+          <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+        </div>
       </div>
     </button>
   );

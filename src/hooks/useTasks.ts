@@ -31,5 +31,15 @@ export function useTasks(clientId?: string) {
 
   const refetch = () => queryClient.invalidateQueries({ queryKey: ["tasks"] });
 
-  return { ...query, refetch };
+  const updateTask = async (id: string, updates: Partial<DbTask>) => {
+    await supabase.from("tasks").update(updates).eq("id", id);
+    refetch();
+  };
+
+  const deleteTask = async (id: string) => {
+    await supabase.from("tasks").delete().eq("id", id);
+    refetch();
+  };
+
+  return { ...query, refetch, updateTask, deleteTask };
 }

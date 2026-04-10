@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckSquare, Filter } from "lucide-react";
+import { CheckSquare, Filter, Trash2, CheckCircle2, Circle } from "lucide-react";
 import { useTasks } from "@/hooks/useTasks";
 import { useClients } from "@/hooks/useClients";
 import StatusBadge from "@/components/StatusBadge";
@@ -8,7 +8,7 @@ import { format } from "date-fns";
 
 export default function TasksView() {
   const [filter, setFilter] = useState<string>("all");
-  const { data: tasks = [], refetch } = useTasks();
+  const { data: tasks = [], refetch, updateTask, deleteTask } = useTasks();
   const { data: clients = [] } = useClients();
   const filtered = filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
 
@@ -50,15 +50,27 @@ export default function TasksView() {
       ) : (
         <div className="glass-card divide-y divide-border/30">
           {filtered.map((task) => (
-            <div key={task.id} className="flex items-center justify-between p-4 hover:bg-muted/20 transition-colors">
-              <div className="flex-1 min-w-0 mr-4">
-                <p className="text-sm font-medium text-foreground">{task.title}</p>
+            <div key={task.id} className="flex items-center justify-between p-4 hover:bg-muted/20 transition-colors group">
+            <div className="flex items-center gap-3 flex-1 min-w-0 mr-4">
+              <button onClick={() => updateTask(task.id, { status: task.status === "complete" ? "pending" : "complete" })}
+                className="text-muted-foreground hover:text-primary transition-colors shrink-0">
+                {task.status === "complete"
+                  ? <CheckCircle2 className="w-4 h-4 text-primary" />
+                  : <Circle className="w-4 h-4" />}
+              </button>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-medium ${task.status === "complete" ? "line-through text-muted-foreground" : "text-foreground"}`}>{task.title}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {clientName(task.client_id)} · Due {task.due_date ? format(new Date(task.due_date), "MMM d") : "—"}
                   {task.description && ` · ${task.description}`}
-                </p>
+                  </p>
+                </div>
               </div>
               <div className="flex items-center gap-3">
+                <button onClick={() => deleteTask(task.id)}
+                  className="opacity-0 group-hover:opacity-100 p-1 rounded text-muted-foreground hover:text-destructive transition-colors">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
                 <span className={`text-xs px-2 py-0.5 rounded-full ${
                   task.priority === "high" ? "bg-destructive/10 text-destructive" :
                   task.priority === "medium" ? "bg-accent/10 text-accent" : "bg-muted text-muted-foreground"

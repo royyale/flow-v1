@@ -37,5 +37,10 @@ export function useClients() {
 
   const refetch = () => queryClient.invalidateQueries({ queryKey: ["clients", user?.id] });
 
-  return { ...query, refetch };
+  const deleteClient = async (id: string) => {
+    await supabase.from("clients").delete().eq("id", id);
+    refetch();
+  };
+
+  return { ...query, refetch, deleteClient };
 }
