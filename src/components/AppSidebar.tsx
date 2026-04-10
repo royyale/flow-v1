@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import flowLogo from "./flow-logo.svg";
 import {
   LayoutDashboard, Users, CheckSquare, Clock, Bot,
   ChevronLeft, ChevronRight, LogOut,
@@ -22,22 +23,18 @@ export default function AppSidebar() {
   return (
     <aside className={`fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col z-50 transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}>
       <div className="p-4 flex items-center gap-3 border-b border-sidebar-border">
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
-          <div className="relative w-5 h-5">
-            <div className="absolute inset-0 rounded-full border-[2px] border-primary-foreground border-r-transparent border-b-transparent rotate-45" />
-            <div className="absolute inset-[17.5%] rounded-full border-[2px] border-primary-foreground border-l-transparent border-t-transparent rotate-45" />
-            <div className="absolute w-[22%] h-[22%] bg-primary-foreground rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-          </div>
+        <div className="w-8 h-8 flex items-center justify-center shrink-0">
+          <img src={flowLogo} width={32} height={32} alt="Flow" />
         </div>
         {!collapsed && <span className="text-foreground font-semibold text-lg tracking-tight">Flow</span>}
       </div>
 
-      <nav className="flex-1 px-3 space-y-1">
+      <nav className="flex-1 px-3 space-y-1 py-2">
         {navItems.map((item) => {
           const active = location.pathname === item.path;
           return (
             <button key={item.path} onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${active ? "bg-primary/10 text-primary glow-primary" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-foreground"}`}>
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${active ? "bg-primary/10 text-primary" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-foreground"}`}>
               <item.icon className="w-5 h-5 shrink-0" />
               {!collapsed && <span>{item.label}</span>}
             </button>
@@ -53,7 +50,6 @@ export default function AppSidebar() {
         </button>
       </div>
 
-      {/* User & Sign out */}
       <div className="px-3 pb-2">
         <div className="flex items-center gap-2 px-3 py-2">
           <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-semibold shrink-0">

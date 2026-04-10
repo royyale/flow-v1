@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import flowLogo from "./flow-logo.svg";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -34,12 +35,8 @@ export default function AuthPage() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto mb-4 shadow-sm">
-            <div className="relative w-7 h-7">
-              <div className="absolute inset-0 rounded-full border-[3px] border-primary-foreground border-r-transparent border-b-transparent rotate-45" />
-              <div className="absolute inset-[17.5%] rounded-full border-[3px] border-primary-foreground border-l-transparent border-t-transparent rotate-45" />
-              <div className="absolute w-[22%] h-[22%] bg-primary-foreground rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-            </div>
+          <div className="mx-auto mb-4 flex justify-center">
+            <img src={flowLogo} width={48} height={48} alt="Flow" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">Welcome to Flow</h1>
           <p className="text-muted-foreground text-sm mt-1">

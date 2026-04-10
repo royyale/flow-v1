@@ -1,0 +1,27 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .outline-layer { fill: none; stroke: #2dd4bf; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+      .filled-layer { fill: #2dd4bf; stroke: #2dd4bf; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+      .connector { stroke: #14b8a6; stroke-width: 3; stroke-dasharray: 8,8; stroke-linecap: round; }
+      .diamond-primary { fill: #2dd4bf; }
+      .diamond-white { fill: #f8fafc; }
+    </style>
+  </defs>
+  
+  <!-- Top Layer: Outline with teal diamond -->
+  <rect x="40" y="120" width="280" height="60" rx="8" ry="8" class="outline-layer"/>
+  <polygon points="90,150 105,135 120,150 105,165" class="diamond-primary"/>
+  
+  <!-- Middle Layer: Outline with teal diamond -->
+  <rect x="100" y="210" width="280" height="60" rx="8" ry="8" class="outline-layer"/>
+  <polygon points="150,240 165,225 180,240 165,255" class="diamond-primary"/>
+  
+  <!-- Bottom Layer: Filled teal with white diamond -->
+  <rect x="160" y="300" width="280" height="60" rx="8" ry="8" class="filled-layer"/>
+  <polygon points="210,330 225,315 240,330 225,345" class="diamond-white"/>
+  
+  <!-- Connector Lines -->
+  <line x1="280" y1="180" x2="310" y2="210" class="connector"/>
+  <line x1="340" y1="270" x2="370" y2="300" class="connector"/>
+</svg>
