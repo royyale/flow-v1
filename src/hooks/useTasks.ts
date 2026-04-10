@@ -41,5 +41,14 @@ export function useTasks(clientId?: string) {
     refetch();
   };
 
-  return { ...query, refetch, updateTask, deleteTask };
-}
+  const createTask = async (task: { title: string; description?: string; priority?: string; due_date?: string }) => {
+    await supabase.from("tasks").insert({
+      ...task,
+      user_id: user!.id,
+      status: "pending",
+      priority: task.priority || "medium",
+    });
+    refetch();
+  };
+
+  return { ...query, refetch, updateTask, deleteTask, createTask };}

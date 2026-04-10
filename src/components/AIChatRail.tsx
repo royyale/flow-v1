@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Bot, Send, X, Maximize2, Minimize2, Sparkles, Plus, FileText } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useTasks } from "@/hooks/useTasks";
 import { streamChat, type Msg } from "@/lib/chatStream";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
@@ -130,6 +131,7 @@ function JobDescriptionForm({ onSubmit, onClose }: { onSubmit: (data: any) => vo
 
 export default function AIChatRail({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
   const { session } = useAuth();
+  const { createTask } = useTasks();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -395,8 +397,20 @@ Make it compelling, inclusive, and professional. Use clear formatting with bulle
               msg.role === "user" ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-muted text-foreground rounded-bl-sm"
             }`}>
               {msg.role === "assistant" ? (
-                <div className="prose prose-sm prose-invert max-w-none">
-                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                <div className="space-y-2">
+                  <div className="prose prose-sm prose-invert max-w-none">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const title = msg.content.split("\n").find(l => l.trim()) || "Follow up task";
+                      const clean = title.replace(/^[-*#>\s]+/, "").slice(0, 80);
+                      createTask({ title: clean, description: "Created from AI chat", priority: "medium" });
+                      toast.success("Task created!");
+                    }}
+                    className="text-xs text-primary hover:underline flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
+                    + Create task from this
+                  </button>
                 </div>
               ) : (
                 <div className="whitespace-pre-wrap">{msg.content}</div>
