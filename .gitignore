@@ -22,4 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.vercel
+.vercelsupabase/functions/.env
+supabase/functions/.env
