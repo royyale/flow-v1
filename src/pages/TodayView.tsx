@@ -42,7 +42,7 @@ export default function TodayView() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Good morning, {firstName}</h1>
+        <h1 className="text-2xl font-bold text-foreground">{new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Good afternoon" : "Good evening"}, {firstName}</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {dayName}, {dateStr} · {urgentTasks.length} urgent items
           </p>
@@ -101,7 +101,6 @@ export default function TodayView() {
           {todayReminders.length > 0 && (
             <div className="glass-card p-5">
               <h2 className="font-semibold text-foreground flex items-center gap-2 mb-4">
-                <Bell className="w-4 h-4 text-accent" />
                 Reminders
               </h2>
               <div className="space-y-3">

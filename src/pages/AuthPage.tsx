@@ -41,7 +41,7 @@ export default function AuthPage() {
               <div className="absolute w-[22%] h-[22%] bg-primary-foreground rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Welcome to Clairo</h1>
+          <h1 className="text-2xl font-bold text-foreground">Welcome to Flow</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {isSignUp ? "Create your account" : "Sign in to continue"}
           </p>

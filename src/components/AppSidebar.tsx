@@ -29,7 +29,7 @@ export default function AppSidebar() {
             <div className="absolute w-[22%] h-[22%] bg-primary-foreground rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           </div>
         </div>
-        {!collapsed && <span className="text-foreground font-semibold text-lg tracking-tight">Clairo</span>}
+        {!collapsed && <span className="text-foreground font-semibold text-lg tracking-tight">Flow</span>}
       </div>
 
       <nav className="flex-1 px-3 space-y-1">

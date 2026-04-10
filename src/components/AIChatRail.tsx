@@ -73,7 +73,7 @@ export default function AIChatRail({ isOpen, onToggle }: { isOpen: boolean; onTo
           </div>
           <div>
             <span className="font-semibold text-sm text-foreground">AI Chief of Staff</span>
-            <p className="text-xs text-muted-foreground">Powered by AI</p>
+            <p className="text-xs text-muted-foreground">Powered by Claude AI</p>
           </div>
         </div>
         <div className="flex items-center gap-1">

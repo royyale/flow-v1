@@ -1,11 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import AppSidebar from "@/components/AppSidebar";
 import AIChatRail from "@/components/AIChatRail";
 import { Bot } from "lucide-react";
-
 export default function DashboardLayout() {
   const [aiOpen, setAiOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setAiOpen(prev => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
 
   return (
     <div className="min-h-screen bg-background">
