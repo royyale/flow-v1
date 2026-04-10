@@ -31,3 +31,21 @@ supabase/functions/.env
 
 # Deployment
 .vercel
+
+# Testing/Coverage
+coverage/
+*.lcov
+
+# Next.js (if applicable, based on dist-ssr/.vercel)
+.next/
+out/
+
+# OS/Thumbs
+Thumbs.db
+ehthumbs.db
+
+# Vercel extras
+.vercel/app/
+
+# Supabase extras
+supabase/migrations/  # If you have local migrations
