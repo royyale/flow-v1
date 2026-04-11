@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --teal: #2dd4bf;
+    --teal-dim: #14b8a6;
+    --dark: #080c0f;
+    --dark-2: #0d1318;
+    --dark-3: #111820;
+    --border: rgba(45,212,191,0.08);
+    --border-hover: rgba(45,212,191,0.25);
+    --text: #f0f4f8;
+    --text-muted: #7a8a99;
+    --text-dim: #4a5560;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--dark);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(45,212,191,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45,212,191,0.025) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(8,12,15,0.7);
+    backdrop-filter: blur(24px) saturate(180%);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .nav-logo span {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  .container {
+    flex: 1;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 160px 48px 100px;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 32px;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover { color: var(--text); }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 16px;
+    margin-bottom: 48px;
+  }
+
+  .form-group {
+    margin-bottom: 24px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  input, textarea, select {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    transition: all 0.2s;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--teal);
+    background: rgba(255,255,255,0.05);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: var(--text-dim);
+  }
+
+  textarea {
+    min-height: 140px;
+    resize: vertical;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: var(--teal);
+    color: #080c0f;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 16px;
+  }
+
+  .btn-submit:hover {
+    background: #5eead4;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(45,212,191,0.25);
+  }
+
+  .alt-contact {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .alt-contact p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .alt-contact a {
+    color: var(--teal);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .alt-contact a:hover {
+    text-decoration: underline;
+  }
+
+  footer {
+    padding: 40px 48px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text);
+  }
+
+  .footer-copy {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .container { padding: 120px 24px 60px; }
+    .row { grid-template-columns: 1fr; }
+    footer { padding: 32px 24px; flex-direction: column; gap: 12px; text-align: center; }
+  }
+
+  .success-message {
+    display: none;
+    background: rgba(45,212,191,0.1);
+    border: 1px solid var(--teal);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    color: var(--teal);
+    text-align: center;
+  }
+
+  .success-message.show {
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="back-link"></a>
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+      <rect x="2" y="8" width="18" height="7" rx="2" stroke="#2dd4bf" stroke-width="1.5"/>
+      <polygon points="5,11.5 8,8.5 11,11.5 8,14.5" fill="#2dd4bf"/>
+      <rect x="8" y="17" width="18" height="7" rx="2" stroke="#2dd4bf" stroke-width="1.5"/>
+      <polygon points="11,20.5 14,17.5 17,20.5 14,23.5" fill="#2dd4bf"/>
+    </svg>
+    <span>Flow</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="landing.html#features">Features</a></li>
+    <li><a href="landing.html#documents">Documents</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+  <a href="landing.html" class="back-link">← Back to home</a>
+  
+  <h1>Get in touch</h1>
+  <p class="subtitle">Have a question about Flow? Send us a message.</p>
+
+  <div class="success-message" id="successMessage">
+    Thanks for reaching out! We'll get back to you within 24 hours.
+  </div>
+
+  <form id="contactForm" action="https://formspree.io/f/mlgoqdpn" method="POST">
+    <div class="row">
+      <div class="form-group">
+        <label for="firstName">First name</label>
+        <input type="text" id="firstName" name="firstName" required placeholder="Jane">
+      </div>
+      <div class="form-group">
+        <label for="lastName">Last name</label>
+        <input type="text" id="lastName" name="lastName" required placeholder="Smith">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required placeholder="jane@company.com">
+    </div>
+
+    <div class="form-group">
+      <label for="company">Company (optional)</label>
+      <input type="text" id="company" name="company" placeholder="Acme Consulting">
+    </div>
+
+    <div class="form-group">
+      <label for="topic">Topic</label>
+      <select id="topic" name="topic" required>
+        <option value="" disabled selected>Select a topic</option>
+        <option value="sales">Sales inquiry</option>
+        <option value="support">Technical support</option>
+        <option value="partners">Partnerships</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="message">Message</label>
+      <textarea id="message" name="message" required placeholder="Tell us how we can help..."></textarea>
+    </div>
+
+    <button type="submit" class="btn-submit">Send message</button>
+  </form>
+
+  <div class="alt-contact">
+    <p>Prefer email? Reach us at <a href="mailto:brysonroyale@brandeis.edu">brysonroyale@brandeis.edu</a></p>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">Flow</div>
+  <div class="footer-copy">© 2026 Flow Systems, Inc.</div>
+</footer>
+
+<script>
+  document.getElementById('contactForm').addEventListener('submit', function(e) {
+    const successMsg = document.getElementById('successMessage');
+    successMsg.classList.add('show');
+    setTimeout(() => {
+      successMsg.classList.remove('show');
+    }, 5000);
+  });
+</script>
+
+</body>
+</html>
