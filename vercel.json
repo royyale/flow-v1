@@ -1,1 +1,10 @@
-{"rewrites":[{"source":"/(.*)","destination":"/index.html"}]}
+{
+  "routes": [
+    { "src": "/", "dest": "/landing.html" },
+    { "src": "/pricing.html", "dest": "/pricing.html" },
+    { "src": "/contact.html", "dest": "/contact.html" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/(.*\\.(js|css|svg|png|ico|woff|woff2))", "dest": "/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
