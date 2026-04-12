@@ -3,8 +3,11 @@ import { Outlet } from "react-router-dom";
 import AppSidebar from "@/components/AppSidebar";
 import AIChatRail from "@/components/AIChatRail";
 import { Bot } from "lucide-react";
+
 export default function DashboardLayout() {
   const [aiOpen, setAiOpen] = useState(false);
+  const [aiExpanded, setAiExpanded] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -17,15 +20,21 @@ export default function DashboardLayout() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  // Match left margin to sidebar collapsed state
+  const leftMargin = collapsed ? "ml-16" : "ml-56";
+
+  // Match right margin to AI panel width
+  const rightMargin = !aiOpen
+    ? ""
+    : aiExpanded
+    ? "mr-[640px]"
+    : "mr-[360px]";
 
   return (
     <div className="min-h-screen bg-background">
-      <AppSidebar />
-      <main
-        className={`transition-all duration-300 ml-56 p-8 ${
-          aiOpen ? "mr-[360px]" : ""
-        }`}
-      >
+      <AppSidebar onCollapsedChange={setCollapsed} />
+
+      <main className={`transition-all duration-300 ${leftMargin} p-8 ${rightMargin}`}>
         <Outlet />
       </main>
 
@@ -39,7 +48,11 @@ export default function DashboardLayout() {
         </button>
       )}
 
-      <AIChatRail isOpen={aiOpen} onToggle={() => setAiOpen(false)} />
+      <AIChatRail
+        isOpen={aiOpen}
+        onToggle={() => setAiOpen(false)}
+        onExpandedChange={setAiExpanded}
+      />
     </div>
   );
 }

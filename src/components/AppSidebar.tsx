@@ -14,11 +14,17 @@ const navItems = [
   { icon: Clock, label: "Reminders", path: "/reminders" },
 ];
 
-export default function AppSidebar() {
+export default function AppSidebar({ onCollapsedChange }: { onCollapsedChange?: (v: boolean) => void }) {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { signOut, profile, user } = useAuth();
+
+  const handleCollapse = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    onCollapsedChange?.(next);
+  };
 
   return (
     <aside className={`fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col z-50 transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}>
@@ -53,7 +59,7 @@ export default function AppSidebar() {
       <div className="px-3 pb-2">
         <div className="flex items-center gap-2 px-3 py-2">
           <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-semibold shrink-0">
-          {user?.email?.[0]?.toUpperCase() || "U"}
+            {user?.email?.[0]?.toUpperCase() || "U"}
           </div>
           {!collapsed && <span className="text-xs text-sidebar-foreground truncate flex-1">{profile?.full_name || "User"}</span>}
           {!collapsed && (
@@ -65,7 +71,8 @@ export default function AppSidebar() {
       </div>
 
       <div className="p-3 border-t border-sidebar-border">
-        <button onClick={() => setCollapsed(!collapsed)}
+        <button
+          onClick={handleCollapse}
           className="w-full flex items-center justify-center p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors">
           {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>
