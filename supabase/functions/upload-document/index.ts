@@ -7,7 +7,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
 function daysFromNow(dateStr: string | null): number | null {
   if (!dateStr) return null;
@@ -27,9 +27,9 @@ function buildSystemPrompt(
   clients: any[],
   tasks: any[],
   reminders: any[],
-  today: string,
-  ragContext: string // ← NEW
+  today: string
 ): string {
+  // ── Pre-process clients ──────────────────────────────────────────────────
   const atRisk = clients.filter((c) => c.status === "at-risk");
   const stable = clients.filter((c) => c.status !== "at-risk");
 
@@ -49,13 +49,14 @@ function buildSystemPrompt(
         ? `  Next deadline: "${nextDeadline.title}" — ${relativeDate(nextDeadline.due_date)}`
         : `  Next deadline: none`,
       urgent.length > 0
-        ? `  Urgent items: ${urgent.map((t: any) => `"${t.title}"`).join(", ")}`
+        ? `  Urgent items: ${urgent.map((t) => `"${t.title}"`).join(", ")}`
         : "",
     ]
       .filter(Boolean)
       .join("\n");
   });
 
+  // ── Pre-process tasks ────────────────────────────────────────────────────
   const urgentTasks = tasks.filter((t) => t.status === "urgent");
   const overdueTasks = tasks.filter(
     (t) => t.due_date && daysFromNow(t.due_date)! < 0 && t.status !== "complete"
@@ -63,7 +64,12 @@ function buildSystemPrompt(
   const dueTodayTasks = tasks.filter(
     (t) => t.due_date && daysFromNow(t.due_date) === 0 && t.status !== "complete"
   );
-  const todayReminders = reminders.filter((r) => r.due_date && daysFromNow(r.due_date) === 0);
+
+  // ── Pre-process reminders ────────────────────────────────────────────────
+  const todayReminders = reminders.filter((r) => {
+    if (!r.due_date) return false;
+    return daysFromNow(r.due_date) === 0;
+  });
   const upcomingReminders = reminders.filter((r) => {
     if (!r.due_date) return false;
     const d = daysFromNow(r.due_date)!;
@@ -74,16 +80,7 @@ function buildSystemPrompt(
 Today is ${today}.
 
 Your role: help the user run their client portfolio with the confidence and clarity of a 20-person firm. You know every client, every deadline, and every risk. Be concise, direct, and proactive. Lead with what matters most. Use markdown formatting.
-${
-  ragContext
-    ? `
-━━━ RELEVANT DOCUMENTS & CONTEXT ━━━
-The following content was retrieved from uploaded documents and past conversations relevant to this query. Use it to give a more informed, specific answer:
 
-${ragContext}
-`
-    : ""
-}
 ━━━ PORTFOLIO SNAPSHOT ━━━
 Total clients: ${clients.length} | At-risk: ${atRisk.length} | Stable: ${stable.length}
 Urgent tasks: ${urgentTasks.length} | Overdue: ${overdueTasks.length} | Due today: ${dueTodayTasks.length}
@@ -109,74 +106,40 @@ ${
 }
 
 ━━━ DUE TODAY ━━━
-${dueTodayTasks.length > 0 ? dueTodayTasks.map((t) => `📌 "${t.title}"`).join("\n") : "Nothing due today."}
+${
+  dueTodayTasks.length > 0
+    ? dueTodayTasks.map((t) => `📌 "${t.title}"`).join("\n")
+    : "Nothing due today."
+}
 
 ━━━ TODAY'S REMINDERS ━━━
-${todayReminders.length > 0 ? todayReminders.map((r) => `🔔 ${r.title} (${r.type})`).join("\n") : "No reminders for today."}
+${
+  todayReminders.length > 0
+    ? todayReminders.map((r) => `🔔 ${r.title} (${r.type})`).join("\n")
+    : "No reminders for today."
+}
 
 ━━━ ALL CLIENTS (FULL DETAIL) ━━━
 ${clientSummaries.join("\n\n")}
 
 ━━━ UPCOMING REMINDERS (next 7 days) ━━━
-${upcomingReminders.length > 0 ? upcomingReminders.map((r) => `• ${r.title} — ${relativeDate(r.due_date)}`).join("\n") : "None."}
+${
+  upcomingReminders.length > 0
+    ? upcomingReminders
+        .map((r) => `• ${r.title} — ${relativeDate(r.due_date)}`)
+        .join("\n")
+    : "None."
+}
 
 ━━━ INSTRUCTIONS ━━━
 - When asked for a daily briefing or "what should I focus on", lead with the most urgent issues first, then at-risk clients, then what's due today. End with one clear recommended next action.
 - When asked about a specific client, give their full picture: status, health score, open tasks, deadlines, and your recommended next step.
 - When asked "what's pending" or "next steps", be specific — name the task, the client, and the deadline.
-- If relevant documents were provided above, reference them specifically in your answer.
 - Keep responses tight. Use bullet points for lists, bold for client names and task titles. No filler.
 - You are a trusted advisor, not a search engine. Offer a perspective, not just data.`;
 }
 
-// ─── RAG retrieval ────────────────────────────────────────────────────────────
-
-async function retrieveContext(
-  supabase: any,
-  userMessage: string,
-  clientId: string | null,
-  userId: string
-): Promise<string> {
-  try {
-    const VOYAGE_API_KEY = Deno.env.get("VOYAGE_API_KEY");
-    if (!VOYAGE_API_KEY) return "";
-
-    // Embed the user's query
-    const embeddingRes = await fetch("https://api.voyageai.com/v1/embeddings", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${VOYAGE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ input: userMessage, model: "voyage-3" }),
-    });
-
-    if (!embeddingRes.ok) return "";
-    const embeddingData = await embeddingRes.json();
-    const queryEmbedding = embeddingData.data?.[0]?.embedding;
-    if (!queryEmbedding) return "";
-
-    // Search for relevant chunks — scoped to consultant, optionally to client
-    const { data: matches } = await supabase.rpc("match_flow_documents", {
-      query_embedding: queryEmbedding,
-      filter_client_id: clientId,
-      match_count: 5,
-    });
-
-    if (!matches?.length) return "";
-
-    return matches
-      .filter((m: any) => m.similarity > 0.5) // only relevant matches
-      .map((m: any) => m.content)
-      .join("\n\n");
-
-  } catch (e) {
-    console.error("RAG retrieval error:", e);
-    return ""; // fail silently — chat still works without RAG
-  }
-}
-
-// ─── Main handler ─────────────────────────────────────────────────────────────
+// ─── Main handler ────────────────────────────────────────────────────────────
 
 serve(async (req) => {
   if (req.method === "OPTIONS")
@@ -193,13 +156,13 @@ serve(async (req) => {
     }
 
     const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "https://urmebzjctesztdyzxaor.supabase.co",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVybWViempjdGVzenRkeXp4YW9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNTc0ODQsImV4cCI6MjA5MDczMzQ4NH0.jg-OxOtzLQkQKQ4jZ5pbqwTccBC8jip1H0IIZS0hfoY",
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const jwt = authHeader.slice(7); // strip "Bearer "
-    const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
+    // Fixed: use getUser() instead of getClaims() — correct Supabase JS v2 pattern
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -210,27 +173,26 @@ serve(async (req) => {
     const userId = user.id;
 
     // ── Parse body ─────────────────────────────────────────────────────────
-    const { messages, clientId } = await req.json(); // ← clientId is new
+    const { messages } = await req.json();
 
-    // ── Fetch context (clients, tasks, reminders) ──────────────────────────
+    // ── Fetch context ──────────────────────────────────────────────────────
     const [{ data: clients }, { data: tasks }, { data: reminders }] =
       await Promise.all([
         supabase.from("clients").select("*").eq("user_id", userId),
         supabase.from("tasks").select("*").eq("user_id", userId),
-        supabase.from("reminders").select("*").eq("user_id", userId).eq("is_done", false),
+        supabase
+          .from("reminders")
+          .select("*")
+          .eq("user_id", userId)
+          .eq("is_done", false),
       ]);
-
-    // ── RAG retrieval ──────────────────────────────────────────────────────
-    const lastUserMessage = [...messages].reverse().find((m: any) => m.role === "user")?.content ?? "";
-    const ragContext = await retrieveContext(supabase, lastUserMessage, clientId ?? null, userId);
 
     const today = new Date().toISOString().split("T")[0];
     const systemPrompt = buildSystemPrompt(
       clients ?? [],
       tasks ?? [],
       reminders ?? [],
-      today,
-      ragContext // ← injected into prompt
+      today
     );
 
     // ── Call Claude API ────────────────────────────────────────────────────
@@ -243,13 +205,17 @@ serve(async (req) => {
         "Content-Type": "application/json",
         "x-api-key": ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
+        "anthropic-beta": "interleaved-thinking-2025-05-14",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-6",
+        model: "claude-sonnet-4-5",
         max_tokens: 1024,
         stream: true,
         system: systemPrompt,
-        messages: messages.map((m: any) => ({ role: m.role, content: m.content })),
+        messages: messages.map((m: any) => ({
+          role: m.role,
+          content: m.content,
+        })),
       }),
     });
 
@@ -262,7 +228,9 @@ serve(async (req) => {
       );
     }
 
-    // ── Stream back to client ──────────────────────────────────────────────
+    // ── Transform Claude SSE → OpenAI-compatible SSE ───────────────────────
+    // AIChatRail expects OpenAI-style: choices[0].delta.content
+    // Claude streams: content_block_delta with delta.text
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
     const encoder = new TextEncoder();
@@ -289,21 +257,25 @@ serve(async (req) => {
 
             try {
               const event = JSON.parse(jsonStr);
+              // Claude sends content_block_delta events with delta.type === "text_delta"
               if (
                 event.type === "content_block_delta" &&
                 event.delta?.type === "text_delta" &&
                 event.delta?.text
               ) {
+                // Re-emit as OpenAI-compatible format so AIChatRail works unchanged
                 const openAIChunk = {
                   choices: [{ delta: { content: event.delta.text } }],
                 };
-                await writer.write(encoder.encode(`data: ${JSON.stringify(openAIChunk)}\n\n`));
+                await writer.write(
+                  encoder.encode(`data: ${JSON.stringify(openAIChunk)}\n\n`)
+                );
               }
               if (event.type === "message_stop") {
                 await writer.write(encoder.encode("data: [DONE]\n\n"));
               }
             } catch {
-              // ignore parse errors
+              // ignore parse errors on individual lines
             }
           }
         }
@@ -315,7 +287,6 @@ serve(async (req) => {
     return new Response(readable, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
-
   } catch (e) {
     console.error("chat error:", e);
     return new Response(

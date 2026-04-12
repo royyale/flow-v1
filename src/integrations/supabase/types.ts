@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           id: string
           role: string
+          session_id: string | null
           user_id: string
         }
         Insert: {
@@ -27,6 +28,7 @@ export type Database = {
           created_at?: string
           id?: string
           role: string
+          session_id?: string | null
           user_id: string
         }
         Update: {
@@ -34,9 +36,53 @@ export type Database = {
           created_at?: string
           id?: string
           role?: string
+          session_id?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      chat_sessions: {
+        Row: {
+          client_id: string | null
+          consultant_id: string
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id?: string | null
+          consultant_id: string
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string | null
+          consultant_id?: string
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_sessions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       clients: {
         Row: {

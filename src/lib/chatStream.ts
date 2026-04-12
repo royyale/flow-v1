@@ -1,20 +1,32 @@
+import { supabase } from "@/integrations/supabase/client";
+
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
 export type Msg = { role: "user" | "assistant"; content: string };
 
+async function getFreshToken(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
+}
+
 export async function streamChat({
   messages,
-  accessToken,
   onDelta,
   onDone,
   onError,
 }: {
   messages: Msg[];
-  accessToken: string;
   onDelta: (text: string) => void;
   onDone: () => void;
   onError: (msg: string) => void;
 }) {
+  const accessToken = await getFreshToken();
+  console.log("[chatStream] token present:", !!accessToken, "token prefix:", accessToken?.slice(0, 20));
+  if (!accessToken) {
+    onError("Not authenticated");
+    return;
+  }
+
   const resp = await fetch(CHAT_URL, {
     method: "POST",
     headers: {

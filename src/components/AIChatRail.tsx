@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import {
   Bot, Send, X, Maximize2, Minimize2, Sparkles, Plus, FileText,
-  MessageSquare, Pencil, Trash2, Check, ChevronLeft
+  MessageSquare, Pencil, Trash2, Check, ChevronLeft, Paperclip
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTasks } from "@/hooks/useTasks";
@@ -471,28 +471,54 @@ export default function AIChatRail({
     await renameSession.mutateAsync({ id, title: title.trim() });
   };
 
-  // Auto-title after first message
+  // Auto-title after first message — calls dedicated edge function
   const autoTitle = async (sessionId: string, firstMessage: string) => {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) return;
     try {
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/claude-proxy`, {
+      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auto-title`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.access_token}`,
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
-        body: JSON.stringify({
-          messages: [{
-            role: "user",
-            content: `Generate a 3-5 word title for a chat that starts with: "${firstMessage}". Return ONLY the title, no quotes, no punctuation.`,
-          }],
-          skipSave: true,
-        }),
+        body: JSON.stringify({ sessionId, firstMessage }),
       });
-      const data = await res.json();
-      const title = data?.content?.[0]?.text?.trim();
-      if (title) await renameSession.mutateAsync({ id: sessionId, title });
+      // Refresh sidebar so new title appears immediately
+      queryClient.invalidateQueries({ queryKey: ["chat-sessions"] });
     } catch {
       // silently fail — title stays "New Chat"
+    }
+  };
+
+  // File upload handler
+  const handleFileUpload = async (file: File) => {
+    if (!session?.access_token) return;
+    toast.info(`Uploading ${file.name}...`);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      if (activeSessionId) formData.append("sessionId", activeSessionId);
+
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-document`, {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${session.access_token}`,
+    "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,  // ← quoted key fixes it
+  } as HeadersInit,  // ← cast tells TypeScript to trust us
+  body: formData,
+});
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      toast.success(`${file.name} uploaded and indexed!`);
+      // Let the AI know a document was added
+      sendMessage(`I just uploaded a document called "${file.name}". Please acknowledge it and let me know you can answer questions about it.`);
+    } catch (e: any) {
+      toast.error(`Upload failed: ${e.message}`);
     }
   };
 
@@ -539,7 +565,6 @@ export default function AIChatRail({
     try {
       await streamChat({
         messages: newMessages,
-        accessToken: session.access_token,
         onDelta: upsertAssistant,
         onDone: async () => {
           setIsStreaming(false);
@@ -567,7 +592,6 @@ export default function AIChatRail({
     try {
       await streamChat({
         messages: [{ role: "user", content: prompt }],
-        accessToken: session.access_token,
         onDelta: (chunk) => {
           fullContent += chunk;
           setMessages(prev => {
@@ -753,8 +777,26 @@ export default function AIChatRail({
 
         {/* Input */}
         <div className="p-4 border-t border-sidebar-border space-y-2 shrink-0">
+          {/* Hidden file input */}
+          <input
+            type="file"
+            id="flow-file-upload"
+            accept=".pdf,.docx,.txt,.csv,.md"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) { handleFileUpload(file); setShowMenu(false); }
+              e.target.value = "";
+            }}
+          />
           {showMenu && (
             <div className="bg-muted rounded-xl border border-border/30 overflow-hidden">
+              {/* Upload Document — Week 4 RAG */}
+              <button
+                onClick={() => document.getElementById("flow-file-upload")?.click()}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-muted/80 transition-colors border-b border-border/20">
+                <Paperclip className="w-4 h-4 text-primary" /> Upload Document
+              </button>
               {[
                 { label: "Job Description", action: () => { setShowJDForm(true); setShowMenu(false); } },
                 { label: "Offer Letter", action: () => { setShowOfferForm(true); setShowMenu(false); } },

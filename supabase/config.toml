@@ -1,4 +1,15 @@
-project_id = "ixenywcardhhxeiwhpar"
+project_id = "urmebzjctesztdyzxaor"
+
+[functions.chat]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/chat/index.ts"
+
+[functions.auto-title]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/auto-title/index.ts"
+
 [functions.generate-job-description-pdf]
 enabled = true
 verify_jwt = true
