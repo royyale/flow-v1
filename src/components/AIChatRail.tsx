@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import {
   Bot, Send, X, Maximize2, Minimize2, Sparkles, Plus, FileText,
-  MessageSquare, Pencil, Trash2, Check, ChevronLeft, Paperclip
+  MessageSquare, Pencil, Trash2, Check, ChevronLeft
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTasks } from "@/hooks/useTasks";
@@ -57,7 +57,7 @@ function useChatSessions() {
   });
 
   const createSession = useMutation({
-    mutationFn: async (title = "New Chat") => {
+    mutationFn: async (title: string) => {
       const { data: { user } } = await supabase.auth.getUser();
       const { data, error } = await supabase
         .from("chat_sessions")
@@ -108,7 +108,7 @@ function useChatMessages(sessionId: string | null) {
         .eq("session_id", sessionId)
         .order("created_at", { ascending: true });
       if (error) throw error;
-      return data;
+      return data as ChatMessage[];
     },
     enabled: !!sessionId,
   });
@@ -493,35 +493,6 @@ export default function AIChatRail({
     }
   };
 
-  // File upload handler
-  const handleFileUpload = async (file: File) => {
-    if (!session?.access_token) return;
-    toast.info(`Uploading ${file.name}...`);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      if (activeSessionId) formData.append("sessionId", activeSessionId);
-
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-document`, {
-  method: "POST",
-  headers: {
-    Authorization: `Bearer ${session.access_token}`,
-    "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,  // ← quoted key fixes it
-  } as HeadersInit,  // ← cast tells TypeScript to trust us
-  body: formData,
-});
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      toast.success(`${file.name} uploaded and indexed!`);
-      // Let the AI know a document was added
-      sendMessage(`I just uploaded a document called "${file.name}". Please acknowledge it and let me know you can answer questions about it.`);
-    } catch (e: any) {
-      toast.error(`Upload failed: ${e.message}`);
-    }
-  };
-
   // ── Send message ─────────────────────────────────────────────────────────
 
   const sendMessage = async (text: string) => {
@@ -777,26 +748,8 @@ export default function AIChatRail({
 
         {/* Input */}
         <div className="p-4 border-t border-sidebar-border space-y-2 shrink-0">
-          {/* Hidden file input */}
-          <input
-            type="file"
-            id="flow-file-upload"
-            accept=".pdf,.docx,.txt,.csv,.md"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) { handleFileUpload(file); setShowMenu(false); }
-              e.target.value = "";
-            }}
-          />
           {showMenu && (
             <div className="bg-muted rounded-xl border border-border/30 overflow-hidden">
-              {/* Upload Document — Week 4 RAG */}
-              <button
-                onClick={() => document.getElementById("flow-file-upload")?.click()}
-                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-muted/80 transition-colors border-b border-border/20">
-                <Paperclip className="w-4 h-4 text-primary" /> Upload Document
-              </button>
               {[
                 { label: "Job Description", action: () => { setShowJDForm(true); setShowMenu(false); } },
                 { label: "Offer Letter", action: () => { setShowOfferForm(true); setShowMenu(false); } },

@@ -23,12 +23,144 @@ function relativeDate(dateStr: string | null): string {
   return `due in ${d}d`;
 }
 
+// ─── Voyage embedding helper ──────────────────────────────────────────────────
+
+async function getEmbedding(text: string, apiKey: string): Promise<number[] | null> {
+  try {
+    const res = await fetch("https://api.voyageai.com/v1/embeddings", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ input: text, model: "voyage-3" }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.data?.[0]?.embedding ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// ─── RAG retrieval ────────────────────────────────────────────────────────────
+
+async function retrieveContext(
+  supabase: any,
+  userMessage: string,
+  clientId: string | null,
+  voyageKey: string
+): Promise<string> {
+  try {
+    const queryEmbedding = await getEmbedding(userMessage, voyageKey);
+    if (!queryEmbedding) return "";
+
+    const { data: matches } = await supabase.rpc("match_flow_documents", {
+      query_embedding: queryEmbedding,
+      filter_client_id: clientId,
+      match_count: 5,
+    });
+
+    if (!matches?.length) return "";
+
+    return matches
+      .filter((m: any) => m.similarity > 0.5)
+      .map((m: any) => m.content)
+      .join("\n\n");
+  } catch (e) {
+    console.error("RAG retrieval error:", e);
+    return "";
+  }
+}
+
+// ─── Task 1: Embed conversation exchange after streaming ──────────────────────
+
+async function embedConversation(
+  supabase: any,
+  userId: string,
+  sessionId: string | null,
+  userMessage: string,
+  assistantResponse: string,
+  voyageKey: string
+): Promise<void> {
+  try {
+    if (!userMessage || !assistantResponse) return;
+    const exchangeText = `User: ${userMessage}\n\nAssistant: ${assistantResponse}`;
+    const embedding = await getEmbedding(exchangeText, voyageKey);
+    if (!embedding) return;
+
+    await supabase.from("flow_embeddings").insert({
+      consultant_id: userId,
+      session_id: sessionId ?? null,
+      client_id: null,
+      content: exchangeText,
+      doc_type: "conversation",
+      embedding,
+    });
+  } catch (e) {
+    console.error("Conversation embedding error:", e);
+  }
+}
+
+// ─── Task 3: Embed client profiles in background ──────────────────────────────
+
+async function embedClientProfiles(
+  supabase: any,
+  userId: string,
+  clients: any[],
+  tasks: any[],
+  voyageKey: string
+): Promise<void> {
+  try {
+    if (!clients.length) return;
+
+    // Fetch all existing client_profile embeddings for this consultant
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data: existing } = await supabase
+      .from("flow_embeddings")
+      .select("client_id, created_at")
+      .eq("consultant_id", userId)
+      .eq("doc_type", "client_profile")
+      .gte("created_at", cutoff);
+
+    const recentClientIds = new Set((existing ?? []).map((r: any) => r.client_id));
+
+    for (const client of clients) {
+      if (recentClientIds.has(client.id)) continue;
+
+      const clientTasks = tasks.filter((t: any) => t.client_id === client.id);
+      const openCount = clientTasks.filter((t: any) => t.status !== "complete").length;
+
+      const summary =
+        `Client: ${client.name} | Company: ${client.company} | Role: ${client.role} | ` +
+        `Status: ${client.status} | Health score: ${client.health_score}/100 | ` +
+        `Open tasks: ${openCount}`;
+
+      const embedding = await getEmbedding(summary, voyageKey);
+      if (!embedding) continue;
+
+      await supabase.from("flow_embeddings").insert({
+        consultant_id: userId,
+        client_id: client.id,
+        session_id: null,
+        content: summary,
+        doc_type: "client_profile",
+        embedding,
+      });
+    }
+  } catch (e) {
+    console.error("Client profile embedding error:", e);
+  }
+}
+
+// ─── System prompt ────────────────────────────────────────────────────────────
+
 function buildSystemPrompt(
   clients: any[],
   tasks: any[],
   reminders: any[],
   today: string,
-  ragContext: string // ← NEW
+  ragContext: string
 ): string {
   const atRisk = clients.filter((c) => c.status === "at-risk");
   const stable = clients.filter((c) => c.status !== "at-risk");
@@ -77,9 +209,7 @@ Your role: help the user run their client portfolio with the confidence and clar
 ${
   ragContext
     ? `
-━━━ RELEVANT DOCUMENTS & CONTEXT ━━━
-The following content was retrieved from uploaded documents and past conversations relevant to this query. Use it to give a more informed, specific answer:
-
+━━━ RELEVANT CONTEXT FROM MEMORY ━━━
 ${ragContext}
 `
     : ""
@@ -124,56 +254,9 @@ ${upcomingReminders.length > 0 ? upcomingReminders.map((r) => `• ${r.title} �
 - When asked for a daily briefing or "what should I focus on", lead with the most urgent issues first, then at-risk clients, then what's due today. End with one clear recommended next action.
 - When asked about a specific client, give their full picture: status, health score, open tasks, deadlines, and your recommended next step.
 - When asked "what's pending" or "next steps", be specific — name the task, the client, and the deadline.
-- If relevant documents were provided above, reference them specifically in your answer.
+- If relevant context from memory was provided above, reference it specifically in your answer.
 - Keep responses tight. Use bullet points for lists, bold for client names and task titles. No filler.
 - You are a trusted advisor, not a search engine. Offer a perspective, not just data.`;
-}
-
-// ─── RAG retrieval ────────────────────────────────────────────────────────────
-
-async function retrieveContext(
-  supabase: any,
-  userMessage: string,
-  clientId: string | null,
-  userId: string
-): Promise<string> {
-  try {
-    const VOYAGE_API_KEY = Deno.env.get("VOYAGE_API_KEY");
-    if (!VOYAGE_API_KEY) return "";
-
-    // Embed the user's query
-    const embeddingRes = await fetch("https://api.voyageai.com/v1/embeddings", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${VOYAGE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ input: userMessage, model: "voyage-3" }),
-    });
-
-    if (!embeddingRes.ok) return "";
-    const embeddingData = await embeddingRes.json();
-    const queryEmbedding = embeddingData.data?.[0]?.embedding;
-    if (!queryEmbedding) return "";
-
-    // Search for relevant chunks — scoped to consultant, optionally to client
-    const { data: matches } = await supabase.rpc("match_flow_documents", {
-      query_embedding: queryEmbedding,
-      filter_client_id: clientId,
-      match_count: 5,
-    });
-
-    if (!matches?.length) return "";
-
-    return matches
-      .filter((m: any) => m.similarity > 0.5) // only relevant matches
-      .map((m: any) => m.content)
-      .join("\n\n");
-
-  } catch (e) {
-    console.error("RAG retrieval error:", e);
-    return ""; // fail silently — chat still works without RAG
-  }
 }
 
 // ─── Main handler ─────────────────────────────────────────────────────────────
@@ -193,12 +276,12 @@ serve(async (req) => {
     }
 
     const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "https://urmebzjctesztdyzxaor.supabase.co",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVybWViempjdGVzenRkeXp4YW9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNTc0ODQsImV4cCI6MjA5MDczMzQ4NH0.jg-OxOtzLQkQKQ4jZ5pbqwTccBC8jip1H0IIZS0hfoY",
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const jwt = authHeader.slice(7); // strip "Bearer "
+    const jwt = authHeader.slice(7);
     const { data: { user }, error: userError } = await supabase.auth.getUser(jwt);
     if (userError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -210,7 +293,7 @@ serve(async (req) => {
     const userId = user.id;
 
     // ── Parse body ─────────────────────────────────────────────────────────
-    const { messages, clientId } = await req.json(); // ← clientId is new
+    const { messages, clientId, sessionId } = await req.json();
 
     // ── Fetch context (clients, tasks, reminders) ──────────────────────────
     const [{ data: clients }, { data: tasks }, { data: reminders }] =
@@ -220,9 +303,18 @@ serve(async (req) => {
         supabase.from("reminders").select("*").eq("user_id", userId).eq("is_done", false),
       ]);
 
-    // ── RAG retrieval ──────────────────────────────────────────────────────
+    const VOYAGE_API_KEY = Deno.env.get("VOYAGE_API_KEY");
+
+    // ── Task 3: Embed client profiles in background (no await) ────────────
+    if (VOYAGE_API_KEY) {
+      embedClientProfiles(supabase, userId, clients ?? [], tasks ?? [], VOYAGE_API_KEY);
+    }
+
+    // ── Task 2: RAG retrieval ──────────────────────────────────────────────
     const lastUserMessage = [...messages].reverse().find((m: any) => m.role === "user")?.content ?? "";
-    const ragContext = await retrieveContext(supabase, lastUserMessage, clientId ?? null, userId);
+    const ragContext = VOYAGE_API_KEY
+      ? await retrieveContext(supabase, lastUserMessage, clientId ?? null, VOYAGE_API_KEY)
+      : "";
 
     const today = new Date().toISOString().split("T")[0];
     const systemPrompt = buildSystemPrompt(
@@ -230,7 +322,7 @@ serve(async (req) => {
       tasks ?? [],
       reminders ?? [],
       today,
-      ragContext // ← injected into prompt
+      ragContext
     );
 
     // ── Call Claude API ────────────────────────────────────────────────────
@@ -262,7 +354,7 @@ serve(async (req) => {
       );
     }
 
-    // ── Stream back to client ──────────────────────────────────────────────
+    // ── Stream back to client, accumulate full response for memory ─────────
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
     const encoder = new TextEncoder();
@@ -271,6 +363,7 @@ serve(async (req) => {
       const reader = claudeResponse.body!.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let fullAssistantText = "";
 
       try {
         while (true) {
@@ -294,6 +387,7 @@ serve(async (req) => {
                 event.delta?.type === "text_delta" &&
                 event.delta?.text
               ) {
+                fullAssistantText += event.delta.text;
                 const openAIChunk = {
                   choices: [{ delta: { content: event.delta.text } }],
                 };
@@ -303,10 +397,19 @@ serve(async (req) => {
                 await writer.write(encoder.encode("data: [DONE]\n\n"));
               }
             } catch {
-              // ignore parse errors
+              // ignore parse errors on individual SSE lines
             }
           }
         }
+
+        // ── Task 1: Embed the exchange into memory (fire-and-forget) ──────
+        if (VOYAGE_API_KEY && lastUserMessage && fullAssistantText) {
+          embedConversation(
+            supabase, userId, sessionId ?? null,
+            lastUserMessage, fullAssistantText, VOYAGE_API_KEY
+          );
+        }
+
       } finally {
         await writer.close();
       }
