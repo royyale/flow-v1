@@ -292,6 +292,13 @@ serve(async (req) => {
 
     const userId = user.id;
 
+    // ── Refresh health scores in background (no await) ─────────────────────
+    fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/calculate-health`, {
+      method: "POST",
+      headers: { Authorization: authHeader, "Content-Type": "application/json" },
+      body: "{}",
+    }).catch(() => {});
+
     // ── Parse body ─────────────────────────────────────────────────────────
     const { messages, clientId, sessionId } = await req.json();
 

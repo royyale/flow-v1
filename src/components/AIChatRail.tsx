@@ -390,6 +390,37 @@ function JobDescriptionForm({ onSubmit, onClose }: { onSubmit: (data: any) => vo
   );
 }
 
+// ─── Flow Loading Indicator ───────────────────────────────────────────────────
+
+function FlowLoadingIndicator() {
+  return (
+    <div className="flex justify-start">
+      <div className="bg-muted rounded-xl rounded-bl-sm px-3 py-2.5">
+        <style>{`
+          @keyframes flowPulse {
+            0%, 100% { transform: scale(0.4); opacity: 0.3; }
+            50%       { transform: scale(1.0); opacity: 1.0; }
+          }
+        `}</style>
+        <div style={{ display: "flex", gap: "3px", alignItems: "center", height: "8px" }}>
+          {[0, 150, 300].map((delay) => (
+            <div
+              key={delay}
+              className="bg-primary rounded-sm"
+              style={{
+                width: "8px",
+                height: "8px",
+                animation: "flowPulse 900ms ease-in-out infinite",
+                animationDelay: `${delay}ms`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function AIChatRail({
@@ -522,26 +553,17 @@ export default function AIChatRail({
     }
 
     let assistantContent = "";
-    const upsertAssistant = (chunk: string) => {
-      assistantContent += chunk;
-      setMessages(prev => {
-        const last = prev[prev.length - 1];
-        if (last?.role === "assistant") {
-          return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantContent } : m);
-        }
-        return [...prev, { role: "assistant", content: assistantContent }];
-      });
-    };
 
     try {
       await streamChat({
         messages: newMessages,
-        onDelta: upsertAssistant,
+        onDelta: (chunk) => { assistantContent += chunk; },
         onDone: async () => {
           setIsStreaming(false);
-          // Save assistant response to Supabase
-          if (assistantContent) await saveMessage("assistant", assistantContent);
-          // Refresh session list so updated_at sorts correctly
+          if (assistantContent) {
+            setMessages(prev => [...prev, { role: "assistant", content: assistantContent }]);
+            await saveMessage("assistant", assistantContent);
+          }
           queryClient.invalidateQueries({ queryKey: ["chat-sessions"] });
         },
         onError: (msg) => { toast.error(msg); setIsStreaming(false); },
@@ -563,16 +585,10 @@ export default function AIChatRail({
     try {
       await streamChat({
         messages: [{ role: "user", content: prompt }],
-        onDelta: (chunk) => {
-          fullContent += chunk;
-          setMessages(prev => {
-            const last = prev[prev.length - 1];
-            if (last?.role === "assistant") return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: fullContent } : m);
-            return [...prev, { role: "assistant", content: fullContent }];
-          });
-        },
+        onDelta: (chunk) => { fullContent += chunk; },
         onDone: () => {
           setIsStreaming(false);
+          if (fullContent) setMessages(prev => [...prev, { role: "assistant", content: fullContent }]);
           const doc = new jsPDF();
           const pageWidth = doc.internal.pageSize.getWidth();
           const margin = 20;
@@ -736,13 +752,7 @@ export default function AIChatRail({
             </div>
           ))}
 
-          {isStreaming && messages[messages.length - 1]?.role !== "assistant" && (
-            <div className="flex justify-start">
-              <div className="bg-muted rounded-xl rounded-bl-sm px-3 py-2 text-sm text-muted-foreground animate-pulse">
-                Thinking...
-              </div>
-            </div>
-          )}
+          {isStreaming && <FlowLoadingIndicator />}
           <div ref={bottomRef} />
         </div>
 

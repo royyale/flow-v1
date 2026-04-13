@@ -11,6 +11,7 @@ import ClientDetail from "@/pages/ClientDetail";
 import TasksView from "@/pages/TasksView";
 import RemindersView from "@/pages/RemindersView";
 import AIView from "@/pages/AIView";
+import AnalyticsView from "@/pages/AnalyticsView";
 import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/NotFound";
 
@@ -31,6 +32,7 @@ const AppRoutes = () => (
       <Route path="/clients" element={<ClientsView />} />
       <Route path="/clients/:id" element={<ClientDetail />} />
       <Route path="/tasks" element={<TasksView />} />
+      <Route path="/analytics" element={<AnalyticsView />} />
       <Route path="/reminders" element={<RemindersView />} />
       <Route path="/ai" element={<AIView />} />
     </Route>

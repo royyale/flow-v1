@@ -3,15 +3,16 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import flowLogo from "./flow-logo.svg";
 import {
-  LayoutDashboard, Users, CheckSquare, Clock, Bot,
+  LayoutDashboard, Users, CheckSquare, Clock, Bot, BarChart2,
   ChevronLeft, ChevronRight, LogOut,
 } from "lucide-react";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Today", path: "/" },
-  { icon: Users, label: "Clients", path: "/clients" },
-  { icon: CheckSquare, label: "Tasks", path: "/tasks" },
-  { icon: Clock, label: "Reminders", path: "/reminders" },
+  { icon: LayoutDashboard, label: "Today",     path: "/" },
+  { icon: Users,           label: "Clients",   path: "/clients" },
+  { icon: CheckSquare,     label: "Tasks",     path: "/tasks" },
+  { icon: BarChart2,       label: "Analytics", path: "/analytics" },
+  { icon: Clock,           label: "Reminders", path: "/reminders" },
 ];
 
 export default function AppSidebar({ onCollapsedChange }: { onCollapsedChange?: (v: boolean) => void }) {

@@ -3,6 +3,22 @@ import { AlertTriangle, ArrowRight, Trash2 } from "lucide-react";
 import type { DbClient } from "@/hooks/useClients";
 import { useClients } from "@/hooks/useClients";
 import HealthScore from "./HealthScore";
+
+function HealthPill({ score }: { score: number | null }) {
+  if (score == null) return null;
+  const { bg, text } =
+    score >= 75 ? { bg: "bg-green-500/20",  text: "text-green-400"  } :
+    score >= 40 ? { bg: "bg-yellow-500/20", text: "text-yellow-400" } :
+                  { bg: "bg-red-500/20",    text: "text-red-400"    };
+  return (
+    <span
+      title={`Health score: ${score}/100`}
+      className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${bg} ${text}`}
+    >
+      {score}
+    </span>
+  );
+}
 export default function ClientCard({ client }: { client: DbClient }) {
   const navigate = useNavigate();
   const { deleteClient } = useClients();
@@ -15,7 +31,10 @@ export default function ClientCard({ client }: { client: DbClient }) {
             {client.avatar || client.name.slice(0, 2).toUpperCase()}
           </div>
           <div>
-            <p className="font-medium text-foreground text-sm">{client.name}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="font-medium text-foreground text-sm">{client.name}</p>
+              <HealthPill score={client.health_score} />
+            </div>
             <p className="text-xs text-muted-foreground">{client.company}</p>
           </div>
         </div>
