@@ -7,11 +7,9 @@
   <meta name="description" content="Flow gives you a private AI chief of staff that knows every one of your clients, flags what needs attention today, and helps you make the right call on every HR decision." />
   <meta name="author" content="Bryson Royale" />
 
-  <!-- Favicon: Teal SVG for dark theme -->
   <link rel="icon" type="image/svg+xml" href="/flow-logo.svg" />
   <link rel="alternate icon" type="image/png" href="/favicon-32x32.png" />
 
-  <!-- Open Graph / Social -->
   <meta property="og:title" content="Flow" />
   <meta property="og:description" content="Run 9 clients with the confidence and clarity of a 20-person firm." />
   <meta property="og:type" content="website" />
@@ -19,14 +17,16 @@
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
 
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content="/og-image.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-  
+
+  <!-- Lenis smooth scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -45,7 +45,8 @@
       --text-dim: #4a5560;
     }
 
-    html { scroll-behavior: smooth; }
+    /* Lenis handles smooth scroll — disable native */
+    html { scroll-behavior: auto; }
 
     body {
       font-family: 'DM Sans', sans-serif;
@@ -85,7 +86,8 @@
 
     nav.scrolled {
       padding: 16px 48px;
-      background: rgba(8,12,15,0.85);
+      background: rgba(8,12,15,0.88);
+      border-bottom-color: rgba(45,212,191,0.14);
     }
 
     .nav-logo {
@@ -133,16 +135,11 @@
       width: 0;
       height: 1px;
       background: var(--teal);
-      transition: width 0.2s;
+      transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .nav-links a:hover { 
-      color: var(--text); 
-    }
-
-    .nav-links a:hover::after {
-      width: 100%;
-    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { width: 100%; }
 
     .nav-cta {
       display: flex;
@@ -174,6 +171,8 @@
       border: 1px solid transparent;
       cursor: pointer;
       display: inline-block;
+      position: relative;
+      overflow: hidden;
     }
 
     .btn-primary:hover {
@@ -221,7 +220,6 @@
       letter-spacing: 0.06em;
       text-transform: uppercase;
       margin-bottom: 32px;
-      animation: fadeUp 0.6s ease both;
       backdrop-filter: blur(10px);
     }
 
@@ -245,7 +243,6 @@
       line-height: 1.05;
       letter-spacing: -0.04em;
       margin-bottom: 24px;
-      animation: fadeUp 0.6s ease 0.1s both;
     }
 
     .hero-title .accent {
@@ -265,7 +262,6 @@
       max-width: 560px;
       margin: 0 auto 40px;
       line-height: 1.7;
-      animation: fadeUp 0.6s ease 0.2s both;
       letter-spacing: 0.01em;
     }
 
@@ -274,7 +270,6 @@
       align-items: center;
       justify-content: center;
       gap: 16px;
-      animation: fadeUp 0.6s ease 0.3s both;
     }
 
     .btn-hero {
@@ -293,6 +288,8 @@
       gap: 8px;
       border: none;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
     }
 
     .btn-hero:hover {
@@ -328,7 +325,6 @@
       margin-top: 80px;
       padding-top: 48px;
       border-top: 1px solid var(--border);
-      animation: fadeUp 0.6s ease 0.4s both;
     }
 
     .stat-item {
@@ -368,7 +364,6 @@
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 0 100px rgba(45,212,191,0.05), 0 40px 80px rgba(0,0,0,0.4);
-      animation: fadeUp 0.8s ease 0.5s both;
       position: relative;
     }
 
@@ -382,7 +377,7 @@
       content: '';
       position: absolute;
       inset: -50%;
-      background: 
+      background:
         radial-gradient(circle at 30% 30%, rgba(45,212,191,0.1) 0%, transparent 50%),
         radial-gradient(circle at 70% 70%, rgba(45,212,191,0.05) 0%, transparent 50%);
       animation: liquidDrift 20s ease-in-out infinite;
@@ -438,11 +433,11 @@
     .data-stream {
       position: absolute;
       height: 2px;
-      background: linear-gradient(90deg, 
-        transparent 0%, 
-        rgba(45,212,191,0.4) 20%, 
-        rgba(45,212,191,0.8) 50%, 
-        rgba(45,212,191,0.4) 80%, 
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(45,212,191,0.4) 20%,
+        rgba(45,212,191,0.8) 50%,
+        rgba(45,212,191,0.4) 80%,
         transparent 100%
       );
       animation: dataFlow 3s linear infinite;
@@ -471,14 +466,13 @@
     .frame-sidebar::after {
       content: '';
       position: absolute;
-      top: 0;
-      right: 0;
+      top: 0; right: 0;
       width: 1px;
       height: 100%;
-      background: linear-gradient(180deg, 
-        transparent 0%, 
-        rgba(45,212,191,0.3) 20%, 
-        rgba(45,212,191,0.3) 80%, 
+      background: linear-gradient(180deg,
+        transparent 0%,
+        rgba(45,212,191,0.3) 20%,
+        rgba(45,212,191,0.3) 80%,
         transparent 100%
       );
       animation: sidebarGlow 4s ease-in-out infinite;
@@ -596,18 +590,17 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 20px;
-      transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-      backdrop-filter: blur(10px);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(16px) saturate(140%);
       overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
     }
 
     .flow-card::before {
       content: '';
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
       background: radial-gradient(circle, rgba(45,212,191,0.1) 0%, transparent 70%);
       opacity: 0;
       transition: opacity 0.4s;
@@ -615,17 +608,15 @@
     }
 
     .flow-card:hover {
-      transform: translateY(-6px) scale(1.02);
-      border-color: rgba(45,212,191,0.3);
-      box-shadow: 
-        0 20px 40px rgba(0,0,0,0.3),
-        0 0 0 1px rgba(45,212,191,0.2),
-        inset 0 1px 0 rgba(255,255,255,0.05);
+      transform: translateY(-3px);
+      border-color: rgba(45,212,191,0.2);
+      box-shadow:
+        0 12px 28px rgba(0,0,0,0.22),
+        0 0 0 1px rgba(45,212,191,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.06);
     }
 
-    .flow-card:hover::before {
-      opacity: 1;
-    }
+    .flow-card:hover::before { opacity: 1; }
 
     @keyframes cardPulse {
       0%, 100% { transform: scale(1); }
@@ -648,9 +639,9 @@
       letter-spacing: -0.03em;
     }
 
-    .card-value.red { color: #f87171; }
+    .card-value.red   { color: #f87171; }
     .card-value.amber { color: #fbbf24; }
-    .card-value.teal { color: var(--teal); }
+    .card-value.teal  { color: var(--teal); }
     .card-value.green { color: #4ade80; }
 
     .frame-bottom {
@@ -693,14 +684,24 @@
       text-transform: uppercase;
     }
 
-    .badge-red { background: rgba(248,113,113,0.1); color: #f87171; }
-    .badge-amber { background: rgba(251,191,36,0.1); color: #fbbf24; }
-    .badge-teal { background: rgba(45,212,191,0.1); color: var(--teal); }
+    .badge-red   { background: rgba(248,113,113,0.1); color: #f87171; }
+    .badge-amber { background: rgba(251,191,36,0.1);  color: #fbbf24; }
+    .badge-teal  { background: rgba(45,212,191,0.1);  color: var(--teal); }
 
     .features-section {
       padding: 140px 48px;
       max-width: 1200px;
       margin: 0 auto;
+      position: relative;
+    }
+
+    /* Subtle radial tint above features */
+    .features-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(45,212,191,0.03) 0%, transparent 70%);
+      pointer-events: none;
     }
 
     .section-label {
@@ -735,13 +736,14 @@
     .feature-card {
       background: var(--dark-2);
       padding: 40px;
-      transition: all 0.3s;
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
       cursor: default;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
     }
 
-    .feature-card:hover {
-      background: var(--dark-3);
-    }
+    .feature-card:hover { background: var(--dark-3); }
 
     .feature-icon {
       width: 44px;
@@ -788,9 +790,13 @@
 
     .docs-section {
       padding: 140px 48px;
-      background: var(--dark-2);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+      /* Gradient fade instead of hard lines — the section breathes into the page */
+      background: linear-gradient(180deg,
+        var(--dark) 0%,
+        var(--dark-2) 80px,
+        var(--dark-2) calc(100% - 80px),
+        var(--dark) 100%
+      );
     }
 
     .docs-inner {
@@ -867,8 +873,8 @@
       opacity: 0;
     }
 
-    .doc-item:hover .doc-arrow { 
-      color: var(--teal); 
+    .doc-item:hover .doc-arrow {
+      color: var(--teal);
       opacity: 1;
       transform: translateX(4px);
     }
@@ -878,7 +884,9 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 40px 80px rgba(0,0,0,0.3);
+      box-shadow:
+        0 40px 80px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.04);
     }
 
     .chat-header {
@@ -981,9 +989,7 @@
       transition: transform 0.2s;
     }
 
-    .chat-send:hover {
-      transform: scale(1.05);
-    }
+    .chat-send:hover { transform: scale(1.05); }
 
     .cta-section {
       padding: 160px 48px;
@@ -992,14 +998,30 @@
       overflow: hidden;
     }
 
+    /* Richer deep-water background for CTA */
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 120% 70% at 50% 120%, rgba(45,212,191,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(45,212,191,0.03) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
     .cta-glow {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 800px;
-      height: 500px;
-      background: radial-gradient(ellipse, rgba(45,212,191,0.05) 0%, transparent 70%);
+      width: 1000px;
+      height: 700px;
+      /* Two-stop: brighter center fading to a secondary teal halo */
+      background: radial-gradient(ellipse,
+        rgba(45,212,191,0.08) 0%,
+        rgba(45,212,191,0.025) 40%,
+        transparent 70%
+      );
       pointer-events: none;
     }
 
@@ -1058,11 +1080,6 @@
       color: var(--text-muted);
     }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
     @media (max-width: 1024px) {
       .features-grid { grid-template-columns: repeat(2, 1fr); }
       .docs-inner { gap: 60px; }
@@ -1085,9 +1102,246 @@
       .cta-section { padding: 100px 24px; }
       footer { padding: 32px 24px; flex-direction: column; gap: 12px; text-align: center; }
     }
+
+
+    /* =========================================================
+       WATER MOTION ENHANCEMENTS
+    ========================================================= */
+
+    /* Ambient wave layer — sits behind all page content.
+       First DOM child of body, so it paints before everything else.
+       Sections with transparent backgrounds (most of them) let it show through. */
+    #ambient-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    #ambient-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Scroll progress bar — top of viewport */
+    #scroll-progress {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--teal), rgba(45,212,191,0.4));
+      transform-origin: left center;
+      transform: scaleX(0);
+      z-index: 200;
+      pointer-events: none;
+      transition: transform 0.08s linear;
+    }
+
+    /* Nav: teal glow line grows with scroll */
+    nav.scrolled {
+      box-shadow: 0 1px 0 0 rgba(45,212,191,0.1);
+    }
+
+    /* ---- Hero: Water Rise ----
+       Each element surfaces upward through a blur-to-focus reveal.
+       Replaces the generic fadeUp with something that feels like
+       text emerging from depth — slow, soft, deliberate. */
+    @keyframes waterRise {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+        filter: blur(2px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0px);
+      }
+    }
+
+    .hero-badge   { animation: waterRise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0s    both; }
+    .hero-title   { animation: waterRise 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both; }
+    .hero-sub     { animation: waterRise 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.26s both; }
+    .hero-actions { animation: waterRise 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.40s both; }
+    .hero-stats   { animation: waterRise 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.56s both; }
+
+    /* ---- Dashboard preview: slow bloom on scroll-enter ---- */
+    .dashboard-frame {
+      /* Override the CSS animation with a transition-based approach */
+      animation: none !important;
+      opacity: 0;
+      transform: translateY(64px) scale(0.975);
+      transition:
+        opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 1.4s ease;
+    }
+
+    .dashboard-frame.revealed {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      box-shadow: 0 0 140px rgba(45,212,191,0.08), 0 40px 80px rgba(0,0,0,0.4);
+    }
+
+    /* ---- Section scroll-reveal keyframes ---- */
+    @keyframes revealUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes revealLeft {
+      from { opacity: 0; transform: translateX(-36px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes revealRight {
+      from { opacity: 0; transform: translateX(36px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes staggerReveal {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Initial hidden state for all reveal targets */
+    .reveal-up, .reveal-left, .reveal-right { opacity: 0; }
+
+    /* Generic reveal triggers — fired by JS adding .revealed */
+    .reveal-up.revealed    { animation: revealUp    0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .reveal-left.revealed  { animation: revealLeft  0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .reveal-right.revealed { animation: revealRight 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both; }
+
+    /* Features section — slight delay stagger on label/title */
+    .features-section .section-title.reveal-up.revealed {
+      animation: revealUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+    }
+
+    /* Docs section — slight delay stagger on title/body */
+    .docs-section .section-title.reveal-up.revealed {
+      animation: revealUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+    }
+    .docs-section .docs-body-text.reveal-up.revealed {
+      animation: revealUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+    }
+
+    /* ---- Feature grid stagger ----
+       Cards drift up one-by-one like objects bobbing to the surface. */
+    .js-stagger > * { opacity: 0; }
+
+    .js-stagger.revealed > *:nth-child(1) { animation: staggerReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0s    both; }
+    .js-stagger.revealed > *:nth-child(2) { animation: staggerReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.09s both; }
+    .js-stagger.revealed > *:nth-child(3) { animation: staggerReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both; }
+    .js-stagger.revealed > *:nth-child(4) { animation: staggerReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.27s both; }
+    .js-stagger.revealed > *:nth-child(5) { animation: staggerReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.36s both; }
+    .js-stagger.revealed > *:nth-child(6) { animation: staggerReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both; }
+
+    /* ---- Feature card: cursor-tracked ripple ----
+       The ::after pseudo-element follows the mouse as a soft radial
+       glow — bioluminescent water responding to touch. */
+    .feature-card {
+      --ripple-x: 50%;
+      --ripple-y: 50%;
+    }
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        circle 120px at var(--ripple-x) var(--ripple-y),
+        rgba(45,212,191,0.09) 0%,
+        transparent 70%
+      );
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+      border-radius: inherit;
+      z-index: 0;
+    }
+    .feature-card:hover::after { opacity: 1; }
+
+    /* ---- Docs list: items slide in from the left ---- */
+    .js-docs-stagger > .doc-item { opacity: 0; }
+
+    .js-docs-stagger.revealed > .doc-item:nth-child(1) { animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0s    both; }
+    .js-docs-stagger.revealed > .doc-item:nth-child(2) { animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both; }
+    .js-docs-stagger.revealed > .doc-item:nth-child(3) { animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both; }
+    .js-docs-stagger.revealed > .doc-item:nth-child(4) { animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.36s both; }
+
+    /* ---- CTA section: deepest, slowest reveals ----
+       This is the emotional destination — motion decelerates. */
+    .cta-section .section-label.reveal-up.revealed {
+      animation: revealUp 1.0s cubic-bezier(0.16, 1, 0.3, 1) 0s both;
+    }
+    .cta-section .cta-title.reveal-up.revealed {
+      animation: revealUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both;
+    }
+    .cta-section .cta-sub.reveal-up.revealed {
+      animation: revealUp 1.0s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
+    }
+    .cta-section .cta-actions.reveal-up.revealed {
+      animation: revealUp 1.0s cubic-bezier(0.16, 1, 0.3, 1) 0.50s both;
+    }
+
+    /* ---- CTA glow: slow breathing ---- */
+    @keyframes ctaGlowBreathe {
+      0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+      50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.18); }
+    }
+    .cta-glow { animation: ctaGlowBreathe 7s ease-in-out infinite; }
+
+    /* ---- Cursor-reactive ripple canvases ----
+       Sit above the ambient canvas, below content. */
+    #ripple-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #cta-ripple-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* ---- Button shimmer sweep on hover ----
+       A light sweeps across the button surface like sun on water. */
+    .btn-hero::before,
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        108deg,
+        transparent 32%,
+        rgba(255,255,255,0.24) 50%,
+        transparent 68%
+      );
+      transform: translateX(-160%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .btn-hero:hover::before,
+    .btn-primary:hover::before {
+      transform: translateX(160%);
+      transition: transform 0.48s ease;
+    }
   </style>
 </head>
 <body>
+
+<!-- Ambient wave background — fixed, full page, lowest layer -->
+<div id="ambient-layer">
+  <canvas id="ambient-canvas"></canvas>
+</div>
+
+<!-- Scroll progress bar -->
+<div id="scroll-progress"></div>
 
 <nav id="navbar">
   <a href="/" class="nav-logo">
@@ -1112,6 +1366,7 @@
 </nav>
 
 <section class="hero">
+  <canvas id="ripple-canvas"></canvas>
   <canvas id="fluid-canvas"></canvas>
   <div class="hero-content">
     <div class="hero-badge">
@@ -1131,11 +1386,11 @@
     </div>
     <div class="hero-stats">
       <div class="stat-item">
-        <span class="stat-num">10x</span>
+        <span class="stat-num" data-count="10" data-suffix="x">10x</span>
         <span class="stat-label">Faster documentation</span>
       </div>
       <div class="stat-item">
-        <span class="stat-num">100%</span>
+        <span class="stat-num" data-count="100" data-suffix="%">100%</span>
         <span class="stat-label">Client visibility</span>
       </div>
       <div class="stat-item">
@@ -1158,11 +1413,11 @@
       <div class="frame-dot"></div>
       <div class="frame-url">app.flow-hr.com</div>
     </div>
-    
+
     <div class="data-stream" style="top: 35%; width: 60%; left: 20%; animation-delay: 0s;"></div>
     <div class="data-stream" style="top: 55%; width: 40%; left: 30%; animation-delay: 1s;"></div>
     <div class="data-stream" style="top: 75%; width: 50%; left: 25%; animation-delay: 2s;"></div>
-    
+
     <div class="frame-content">
       <div class="frame-sidebar">
         <div class="frame-logo">◆ Flow</div>
@@ -1172,11 +1427,11 @@
         <div class="frame-nav-item"><div class="nav-icon"></div> Documents</div>
         <div class="frame-nav-item"><div class="nav-icon"></div> AI Advisor</div>
       </div>
-      
+
       <div class="frame-main">
         <div class="frame-greeting">Welcome back, Alex</div>
-        <div class="frame-sub">Thursday, April 10 • 3 items require attention</div>
-        
+        <div class="frame-sub">Thursday, April 10 · 3 items require attention</div>
+
         <div class="frame-cards">
           <div class="flow-card">
             <div class="card-label">Urgent</div>
@@ -1195,7 +1450,7 @@
             <div class="card-value green">8</div>
           </div>
         </div>
-        
+
         <div class="frame-bottom">
           <div class="flow-card">
             <div class="panel-title">Priority Actions</div>
@@ -1212,7 +1467,7 @@
               <span class="panel-badge badge-teal">In Progress</span>
             </div>
           </div>
-          
+
           <div class="flow-card">
             <div class="panel-title">Client Health</div>
             <div class="panel-row">
@@ -1235,9 +1490,9 @@
 </div>
 
 <section class="features-section" id="features">
-  <div class="section-label">Platform</div>
-  <h2 class="section-title">Everything needed to manage a modern HR practice</h2>
-  <div class="features-grid">
+  <div class="section-label reveal-up">Platform</div>
+  <h2 class="section-title reveal-up">Everything needed to manage a modern HR practice</h2>
+  <div class="features-grid js-stagger">
     <div class="feature-card">
       <div class="feature-icon">
         <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
@@ -1286,12 +1541,12 @@
 <section class="docs-section" id="documents">
   <div class="docs-inner">
     <div>
-      <div class="section-label">Document Generation</div>
-      <h2 class="section-title">Enterprise-grade HR documents in seconds</h2>
-      <p style="color: var(--text-muted); font-size: 16px; font-weight: 400; line-height: 1.8; margin-bottom: 40px;">
+      <div class="section-label reveal-up">Document Generation</div>
+      <h2 class="section-title reveal-up">Enterprise-grade HR documents in seconds</h2>
+      <p class="docs-body-text reveal-up" style="color: var(--text-muted); font-size: 16px; font-weight: 400; line-height: 1.8; margin-bottom: 40px;">
         Flow's AI engine generates compliant, professional documents tailored to each client's industry, size, and requirements. Edit and export as PDF or DOCX.
       </p>
-      <div class="docs-list">
+      <div class="docs-list js-docs-stagger">
         <div class="doc-item">
           <div class="doc-icon"><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
           <div>
@@ -1326,7 +1581,7 @@
         </div>
       </div>
     </div>
-    <div class="chat-preview">
+    <div class="chat-preview reveal-right">
       <div class="chat-header">
         <div class="chat-avatar">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>
@@ -1360,11 +1615,12 @@
 </section>
 
 <section class="cta-section">
+  <canvas id="cta-ripple-canvas"></canvas>
   <div class="cta-glow"></div>
-  <div class="section-label">Get Started</div>
-  <h2 class="cta-title">Transform your HR Practice<br><span style="color:var(--teal)">with a new flow</span></h2>
-  <p class="cta-sub">Join independent consultants and boutique firms using Flow to deliver enterprise-level service at scale.</p>
-  <div class="cta-actions">
+  <div class="section-label reveal-up">Get Started</div>
+  <h2 class="cta-title reveal-up">Transform your HR Practice<br><span style="color:var(--teal)">with a new flow</span></h2>
+  <p class="cta-sub reveal-up">Join independent consultants and boutique firms using Flow to deliver enterprise-level service at scale.</p>
+  <div class="cta-actions reveal-up">
     <a href="/pricing.html" class="btn-hero">Start free trial →</a>
     <a href="/contact.html" class="btn-hero-ghost">Contact</a>
   </div>
@@ -1382,15 +1638,213 @@
 </footer>
 
 <script>
-  window.addEventListener('scroll', () => {
-    const nav = document.getElementById('navbar');
-    if (window.scrollY > 50) {
-      nav.classList.add('scrolled');
-    } else {
-      nav.classList.remove('scrolled');
-    }
+  /* =========================================================
+     LENIS — smooth scroll
+  ========================================================= */
+  const lenis = new Lenis({
+    duration: 1.2,
+    easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
   });
 
+  function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+
+  /* Anchor links → lenis.scrollTo for smooth nav */
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', e => {
+      const target = document.querySelector(anchor.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        lenis.scrollTo(target, { offset: -80 });
+      }
+    });
+  });
+
+  /* =========================================================
+     SCROLL PROGRESS + NAV STATE
+  ========================================================= */
+  const navbar = document.getElementById('navbar');
+  const progressBar = document.getElementById('scroll-progress');
+
+  lenis.on('scroll', ({ scroll, progress }) => {
+    progressBar.style.transform = `scaleX(${progress})`;
+    if (scroll > 50) navbar.classList.add('scrolled');
+    else navbar.classList.remove('scrolled');
+  });
+
+  /* =========================================================
+     INTERSECTION OBSERVER — section reveals
+  ========================================================= */
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -48px 0px' });
+
+  /* Dashboard frame — observe immediately */
+  revealObserver.observe(document.querySelector('.dashboard-frame'));
+
+  /* Individual reveal elements */
+  document.querySelectorAll('.reveal-up, .reveal-left, .reveal-right').forEach(el => {
+    revealObserver.observe(el);
+  });
+
+  /* Feature grid stagger */
+  revealObserver.observe(document.querySelector('.js-stagger'));
+
+  /* Docs list stagger */
+  revealObserver.observe(document.querySelector('.js-docs-stagger'));
+
+  /* =========================================================
+     STAT COUNTER ANIMATION
+     Counts up from 0 when hero stats scroll into view.
+  ========================================================= */
+  function animateCount(el) {
+    const target = parseInt(el.dataset.count, 10);
+    const suffix = el.dataset.suffix || '';
+    const duration = 1400;
+    const startTime = performance.now();
+
+    function tick(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * target) + suffix;
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  const statsObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('[data-count]').forEach(animateCount);
+        statsObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.6 });
+
+  statsObserver.observe(document.querySelector('.hero-stats'));
+
+  /* =========================================================
+     FEATURE CARD — cursor-tracked ripple
+     CSS custom properties --ripple-x/y follow the mouse,
+     feeding a radial-gradient via ::after pseudo-element.
+  ========================================================= */
+  document.querySelectorAll('.feature-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--ripple-x', `${e.clientX - rect.left}px`);
+      card.style.setProperty('--ripple-y', `${e.clientY - rect.top}px`);
+    });
+  });
+
+  /* =========================================================
+     AMBIENT WAVE BACKGROUND — full page atmosphere
+     Three large gradient blobs drift on slow Lissajous paths
+     (independent x/y frequencies → never exactly repeating).
+     The whole page breathes. Cursor gently nudges all blobs
+     at low amplitude, connecting ambient motion to the ripple.
+
+     Water under glass: present, continuous, refined.
+  ========================================================= */
+  (function initAmbient() {
+    const canvas = document.getElementById('ambient-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const mobile = window.innerWidth < 768;
+
+    function resize() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Shared cursor — smoothed separately from the hero canvas mouse
+    let rawMx = window.innerWidth  * 0.5;
+    let rawMy = window.innerHeight * 0.5;
+    let smx   = rawMx;
+    let smy   = rawMy;
+    document.addEventListener('mousemove', e => { rawMx = e.clientX; rawMy = e.clientY; });
+
+    // Blob definitions:
+    //   bx/by  — base position as viewport fraction
+    //   r      — radius in px
+    //   spd    — orbital speed in rad/frame
+    //   ph     — phase offset (120° apart for even spread)
+    //   ow/oh  — orbit amplitude as viewport fractions (x and y)
+    //   a      — peak opacity
+    //
+    // x uses sin(t * spd + ph), y uses cos(t * spd * 1.31 + ph * 0.7)
+    // The irrational frequency ratio means x and y never sync → organic Lissajous paths
+    const blobs = [
+      { bx: 0.13, by: 0.22, r: mobile ? 280 : 470, spd: 0.0036, ph: 0,    ow: 0.09, oh: 0.07, a: 0.052 },
+      { bx: 0.82, by: 0.62, r: mobile ? 230 : 400, spd: 0.0050, ph: 2.09, ow: 0.11, oh: 0.09, a: 0.042 },
+      { bx: 0.50, by: 0.86, r: mobile ? 300 : 530, spd: 0.0027, ph: 4.19, ow: 0.07, oh: 0.05, a: 0.038 },
+    ];
+
+    let t = 0;
+    let skip = false; // for mobile half-rate
+
+    function draw() {
+      t++;
+
+      // Halve frame rate on mobile — same visual, half the GPU
+      if (mobile) {
+        skip = !skip;
+        if (skip) { requestAnimationFrame(draw); return; }
+      }
+
+      // Very slow cursor smoothing — almost imperceptible lag, always drifting
+      smx += (rawMx - smx) * 0.016;
+      smy += (rawMy - smy) * 0.016;
+
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+
+      // Gentle cursor offset — blobs nudge ~2.8% of viewport toward cursor
+      const dx = (smx - W * 0.5) * 0.028;
+      const dy = (smy - H * 0.5) * 0.022;
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'screen';
+
+      blobs.forEach(b => {
+        // Lissajous orbit: x and y at frequency ratio ~1.31
+        // Creates a figure-eight-like path that never perfectly repeats
+        const cx = (b.bx + Math.sin(t * b.spd        + b.ph)          * b.ow) * W + dx;
+        const cy = (b.by + Math.cos(t * b.spd * 1.31 + b.ph * 0.71)   * b.oh) * H + dy;
+
+        // Two-stop radial: bright core fading to a secondary halo, then transparent
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, b.r);
+        g.addColorStop(0,    `rgba(45,212,191,${b.a})`);
+        g.addColorStop(0.42, `rgba(45,212,191,${+(b.a * 0.38).toFixed(4)})`);
+        g.addColorStop(1,    'rgba(45,212,191,0)');
+
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(cx, cy, b.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  })();
+
+  /* =========================================================
+     CANVAS FLUID ANIMATION — hero background
+     Particle system with mouse attraction and bezier connections.
+  ========================================================= */
   const canvas = document.getElementById('fluid-canvas');
   const ctx = canvas.getContext('2d');
   let width, height;
@@ -1410,10 +1864,8 @@
   resize();
 
   class Particle {
-    constructor() {
-      this.reset();
-    }
-    
+    constructor() { this.reset(); }
+
     reset() {
       this.x = Math.random() * width;
       this.y = Math.random() * height;
@@ -1423,20 +1875,19 @@
       this.opacity = Math.random() * 0.2 + 0.05;
       this.phase = Math.random() * Math.PI * 2;
     }
-    
+
     update() {
       this.phase += 0.01;
       this.x += this.vx + Math.sin(this.phase) * 0.2;
       this.y += this.vy + Math.cos(this.phase) * 0.2;
-      
+
       const centerX = width / 2;
       const centerY = height / 3;
       this.vx += (centerX - this.x) * 0.00005;
       this.vy += (centerY - this.y) * 0.00005;
-      
       this.vx *= 0.99;
       this.vy *= 0.99;
-      
+
       const dx = this.x - mouseX;
       const dy = this.y - mouseY;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1445,19 +1896,18 @@
         this.vx += (dx / dist) * force * 0.8;
         this.vy += (dy / dist) * force * 0.8;
       }
-      
+
       if (this.x < -200) this.x = width + 200;
       if (this.x > width + 200) this.x = -200;
       if (this.y < -200) this.y = height + 200;
       if (this.y > height + 200) this.y = -200;
     }
-    
+
     draw() {
       const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
       gradient.addColorStop(0, `rgba(45, 212, 191, ${this.opacity})`);
       gradient.addColorStop(0.4, `rgba(45, 212, 191, ${this.opacity * 0.5})`);
       gradient.addColorStop(1, 'rgba(45, 212, 191, 0)');
-      
       ctx.fillStyle = gradient;
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
@@ -1471,13 +1921,13 @@
 
   let targetMouseX = width / 2;
   let targetMouseY = height / 2;
-  
-  document.addEventListener('mousemove', (e) => {
+
+  document.addEventListener('mousemove', e => {
     targetMouseX = e.clientX;
     targetMouseY = e.clientY;
   });
 
-  document.addEventListener('touchmove', (e) => {
+  document.addEventListener('touchmove', e => {
     if (e.touches.length > 0) {
       targetMouseX = e.touches[0].clientX;
       targetMouseY = e.touches[0].clientY;
@@ -1489,49 +1939,150 @@
   });
 
   function animate() {
-    if (!isActive) {
-      requestAnimationFrame(animate);
-      return;
-    }
-    
+    if (!isActive) { requestAnimationFrame(animate); return; }
+
     mouseX += (targetMouseX - mouseX) * 0.1;
     mouseY += (targetMouseY - mouseY) * 0.1;
-    
+
     ctx.clearRect(0, 0, width, height);
     ctx.globalCompositeOperation = 'screen';
-    
-    particles.forEach(p => {
-      p.update();
-      p.draw();
-    });
-    
+
+    particles.forEach(p => { p.update(); p.draw(); });
+
     ctx.strokeStyle = 'rgba(45, 212, 191, 0.03)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    
+
     for (let i = 0; i < particles.length; i++) {
       for (let j = i + 1; j < particles.length; j++) {
         const dx = particles[i].x - particles[j].x;
         const dy = particles[i].y - particles[j].y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        
         if (dist < 300) {
           const midX = (particles[i].x + particles[j].x) / 2;
           const midY = (particles[i].y + particles[j].y) / 2;
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.quadraticCurveTo(
-            midX + Math.sin(Date.now() * 0.001 + i) * 20, 
-            midY + Math.cos(Date.now() * 0.001 + j) * 20, 
+            midX + Math.sin(Date.now() * 0.001 + i) * 20,
+            midY + Math.cos(Date.now() * 0.001 + j) * 20,
             particles[j].x, particles[j].y
           );
         }
       }
     }
     ctx.stroke();
-    
+
     requestAnimationFrame(animate);
   }
   animate();
+
+  /* =========================================================
+     CURSOR RIPPLE SYSTEM — hero + CTA
+     Expanding rings that follow the cursor, evoking the surface
+     of still water disturbed by presence. One shared class,
+     two instances with different tuning for each section.
+  ========================================================= */
+  class RippleRing {
+    constructor(x, y, maxR, speed, maxAlpha) {
+      this.x = x;
+      this.y = y;
+      this.r = 0;
+      this.maxR = maxR;
+      this.speed = speed;
+      this.maxAlpha = maxAlpha;
+      this.alive = true;
+    }
+
+    tick() {
+      this.r += this.speed;
+      if (this.r >= this.maxR) this.alive = false;
+    }
+
+    draw(ctx) {
+      const t = this.r / this.maxR;
+      // Quadratic ease-out: bright when small, invisible when large
+      const alpha = this.maxAlpha * (1 - t) * (1 - t);
+      ctx.save();
+      ctx.strokeStyle = `rgba(45,212,191,${alpha.toFixed(4)})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, Math.max(0.1, this.r), 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function makeRippleSystem(canvasId, sectionSelector, opts) {
+    const canvas = document.getElementById(canvasId);
+    const section = document.querySelector(sectionSelector);
+    if (!canvas || !section) return;
+
+    const ctx = canvas.getContext('2d');
+    let rings = [];
+    let lastX = -9999, lastY = -9999;
+    let frameId;
+
+    function resize() {
+      // Match the section's rendered size
+      canvas.width  = section.offsetWidth;
+      canvas.height = section.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    section.addEventListener('mousemove', e => {
+      const rect = section.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Throttle by minimum movement distance to avoid ring avalanche
+      if (Math.hypot(x - lastX, y - lastY) < opts.minMove) return;
+      lastX = x;
+      lastY = y;
+
+      // Primary ring
+      rings.push(new RippleRing(x, y, opts.maxR, opts.speed, opts.alpha));
+
+      // Every third event, add a smaller trailing ring for interference depth
+      if (rings.length % 3 === 0) {
+        rings.push(new RippleRing(x, y, opts.maxR * 0.55, opts.speed * 0.75, opts.alpha * 0.5));
+      }
+
+      // Hard cap to keep perf clean
+      if (rings.length > opts.cap) rings.splice(0, rings.length - opts.cap);
+    });
+
+    section.addEventListener('mouseleave', () => {
+      lastX = -9999;
+      lastY = -9999;
+    });
+
+    function loop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      rings = rings.filter(r => r.alive);
+      rings.forEach(r => { r.tick(); r.draw(ctx); });
+      frameId = requestAnimationFrame(loop);
+    }
+    loop();
+  }
+
+  // Hero: tighter rings, quicker, more responsive to fast movement
+  makeRippleSystem('ripple-canvas', '.hero', {
+    minMove: 10,
+    maxR:    170,
+    speed:   1.4,
+    alpha:   0.10,
+    cap:     36,
+  });
+
+  // CTA: wider rings, slower — calm arrival, unhurried depth
+  makeRippleSystem('cta-ripple-canvas', '.cta-section', {
+    minMove: 8,
+    maxR:    240,
+    speed:   1.0,
+    alpha:   0.11,
+    cap:     28,
+  });
 </script>
 
 </body>
