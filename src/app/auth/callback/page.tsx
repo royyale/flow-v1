@@ -1,0 +1,1 @@
+import AuthCallbackPage from "@/pages/AuthCallbackPage";
