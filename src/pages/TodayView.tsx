@@ -5,6 +5,7 @@ import { useClients } from "@/hooks/useClients";
 import { useTasks } from "@/hooks/useTasks";
 import { useReminders } from "@/hooks/useReminders";
 import { useAuth } from "@/hooks/useAuth";
+import { useReviewQueue } from "@/hooks/useReviewQueue";
 import ClientCard from "@/components/ClientCard";
 import StatusBadge from "@/components/StatusBadge";
 import HealthScore from "@/components/HealthScore";
@@ -26,6 +27,7 @@ export default function TodayView() {
   const { data: clients = [] } = useClients();
   const { data: tasks = [] } = useTasks();
   const { data: reminders = [] } = useReminders();
+  const { data: reviewItems = [] } = useReviewQueue();
 
   const urgentTasks = tasks.filter((t) => t.status === "urgent");
   const atRiskClients = clients.filter((c) => c.status === "at-risk");
@@ -59,7 +61,7 @@ export default function TodayView() {
           { label: "Urgent", value: urgentTasks.length, icon: AlertTriangle, color: "text-destructive" },
           { label: "At-Risk Clients", value: atRiskClients.length, icon: AlertTriangle, color: "text-accent" },
           { label: "Active Tasks", value: totalActive, icon: Clock, color: "text-primary" },
-          { label: "Completed", value: completedToday, icon: CheckCircle2, color: "text-success" },
+          { label: "AI Inbox", value: reviewItems.length, icon: CheckCircle2, color: "text-success" },
         ].map((stat) => (
           <div key={stat.label} className="glass-card p-4">
             <div className="flex items-center gap-2 mb-2">
@@ -114,6 +116,20 @@ export default function TodayView() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {reviewItems.length > 0 && (
+            <div className="glass-card p-5">
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-foreground">AI Task Review Inbox</h2>
+                <button onClick={() => navigate("/inbox")} className="text-xs text-primary hover:underline flex items-center gap-1">
+                  Review now <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                {reviewItems.length} AI-generated task {reviewItems.length === 1 ? "suggestion is" : "suggestions are"} waiting for approval.
+              </p>
             </div>
           )}
 

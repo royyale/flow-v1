@@ -10,13 +10,17 @@ enabled = true
 verify_jwt = false
 entrypoint = "./functions/auto-title/index.ts"
 
-[functions.generate-job-description-pdf]
+[functions.gmail-oauth]
 enabled = true
 verify_jwt = true
-import_map = "./functions/generate-job-description-pdf/deno.json"
-# Uncomment to specify a custom file path to the entrypoint.
-# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
-entrypoint = "./functions/generate-job-description-pdf/index.ts"
-# Specifies static files to be bundled with the function. Supports glob patterns.
-# For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/generate-job-description-pdf/*.html" ]
+entrypoint = "./functions/gmail-oauth/index.ts"
+
+[functions.poll-gmail-inbox]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/poll-gmail-inbox/index.ts"
+
+[functions.review-generated-task]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/review-generated-task/index.ts"

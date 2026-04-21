@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import flowLogo from "./flow-logo.svg";
 import {
   LayoutDashboard, Users, CheckSquare, Clock, Bot, BarChart2,
-  ChevronLeft, ChevronRight, LogOut,
+  ChevronLeft, ChevronRight, LogOut, Inbox, Settings,
 } from "lucide-react";
 
 const navItems = [
@@ -13,6 +13,8 @@ const navItems = [
   { icon: CheckSquare,     label: "Tasks",     path: "/tasks" },
   { icon: BarChart2,       label: "Analytics", path: "/analytics" },
   { icon: Clock,           label: "Reminders", path: "/reminders" },
+  { icon: Inbox,           label: "Inbox",     path: "/inbox" },
+  { icon: Settings,        label: "Settings",  path: "/settings" },
 ];
 
 export default function AppSidebar({ onCollapsedChange }: { onCollapsedChange?: (v: boolean) => void }) {

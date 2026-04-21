@@ -135,6 +135,78 @@ export type Database = {
         }
         Relationships: []
       }
+      email_integrations: {
+        Row: {
+          connected_at: string
+          gmail_access_token: string
+          gmail_refresh_token: string
+          user_id: string
+        }
+        Insert: {
+          connected_at?: string
+          gmail_access_token: string
+          gmail_refresh_token: string
+          user_id: string
+        }
+        Update: {
+          connected_at?: string
+          gmail_access_token?: string
+          gmail_refresh_token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_task_review_queue: {
+        Row: {
+          client_name: string | null
+          created_at: string
+          due_date: string | null
+          email_snippet: string | null
+          email_subject: string | null
+          id: string
+          priority: string
+          reviewed_at: string | null
+          sender_email: string
+          sender_name: string | null
+          source_email_id: string
+          status: string
+          task_title: string
+          user_id: string
+        }
+        Insert: {
+          client_name?: string | null
+          created_at?: string
+          due_date?: string | null
+          email_snippet?: string | null
+          email_subject?: string | null
+          id?: string
+          priority?: string
+          reviewed_at?: string | null
+          sender_email: string
+          sender_name?: string | null
+          source_email_id: string
+          status?: string
+          task_title: string
+          user_id: string
+        }
+        Update: {
+          client_name?: string | null
+          created_at?: string
+          due_date?: string | null
+          email_snippet?: string | null
+          email_subject?: string | null
+          id?: string
+          priority?: string
+          reviewed_at?: string | null
+          sender_email?: string
+          sender_name?: string | null
+          source_email_id?: string
+          status?: string
+          task_title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_initials: string | null
@@ -156,6 +228,27 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      processed_emails: {
+        Row: {
+          email_id: string
+          processed_at: string
+          task_generated: boolean
+          user_id: string
+        }
+        Insert: {
+          email_id: string
+          processed_at?: string
+          task_generated?: boolean
+          user_id: string
+        }
+        Update: {
+          email_id?: string
+          processed_at?: string
+          task_generated?: boolean
+          user_id?: string
         }
         Relationships: []
       }
@@ -290,6 +383,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      watched_clients: {
+        Row: {
+          client_email: string
+          client_name: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          client_email: string
+          client_name: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          client_email?: string
+          client_name?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

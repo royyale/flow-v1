@@ -14,6 +14,9 @@ import AIView from "@/pages/AIView";
 import AnalyticsView from "@/pages/AnalyticsView";
 import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/NotFound";
+import SettingsView from "@/pages/SettingsView";
+import GmailCallbackPage from "@/pages/GmailCallbackPage";
+import ReviewInboxView from "@/pages/ReviewInboxView";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +30,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 const AppRoutes = () => (
   <Routes>
     <Route path="/auth" element={<AuthPage />} />
+    <Route path="/settings/gmail/callback" element={<ProtectedRoute><GmailCallbackPage /></ProtectedRoute>} />
     <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
       <Route path="/" element={<TodayView />} />
       <Route path="/clients" element={<ClientsView />} />
@@ -35,6 +39,8 @@ const AppRoutes = () => (
       <Route path="/analytics" element={<AnalyticsView />} />
       <Route path="/reminders" element={<RemindersView />} />
       <Route path="/ai" element={<AIView />} />
+      <Route path="/inbox" element={<ReviewInboxView />} />
+      <Route path="/settings" element={<SettingsView />} />
     </Route>
     <Route path="*" element={<NotFound />} />
   </Routes>
