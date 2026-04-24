@@ -19,6 +19,7 @@ entrypoint = "./functions/gmail-oauth/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/poll-gmail-inbox/index.ts"
+schedule = "* * * * *"
 
 [functions.review-generated-task]
 enabled = true

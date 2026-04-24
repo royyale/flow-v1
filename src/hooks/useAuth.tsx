@@ -2,14 +2,21 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
+interface Profile {
+  full_name: string;
+  avatar_initials: string;
+  is_active: boolean;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  profileLoading: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  profile: { full_name: string; avatar_initials: string } | null;
+  profile: Profile | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,7 +25,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<{ full_name: string; avatar_initials: string } | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  const fetchProfile = async (userId: string) => {
+    setProfileLoading(true);
+    const { data } = await supabase
+      .from("profiles")
+      .select("full_name, avatar_initials, is_active")
+      .eq("id", userId)
+      .single();
+    if (data) setProfile(data as unknown as Profile);
+    setProfileLoading(false);
+  };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -42,11 +61,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchProfile = async (userId: string) => {
-    const { data } = await supabase.from("profiles").select("full_name, avatar_initials").eq("id", userId).single();
-    if (data) setProfile(data as any);
-  };
-
   const signUp = async (email: string, password: string, fullName: string) => {
     const { error } = await supabase.auth.signUp({
       email,
@@ -66,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut, profile }}>
+    <AuthContext.Provider value={{ user, session, loading, profileLoading, signUp, signIn, signOut, profile }}>
       {children}
     </AuthContext.Provider>
   );
